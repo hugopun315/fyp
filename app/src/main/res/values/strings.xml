@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">FYP</string>
+    <string name="password">Enter your password</string>
+    <string name="email">Ex: abc@gmail.com</string>
+</resources>
