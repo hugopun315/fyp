@@ -241,7 +241,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="exercise habits :"
+            android:text="Exercise habits :"
             android:textColor="@android:color/black"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -287,6 +287,50 @@
         </RadioGroup>
 
 
+        <TextView
+            android:id="@+id/targetText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Target"
+            android:textColor="@android:color/black"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/exercise_list" />
+
+
+
+        <RadioGroup
+            android:id="@+id/targetList"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/targetText"
+            android:orientation="vertical">
+            <RadioButton android:id="@+id/LoseWeight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="loss weight"/>
+            <RadioButton android:id="@+id/GainWeight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="gain weight"/>
+            <RadioButton android:id="@+id/MaintainWeight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="maintain weight"/>
+
+        </RadioGroup>
+
+
         <Button
             android:id="@+id/btnCreate"
             android:layout_width="0dp"
@@ -302,7 +346,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/exercise_list" />
+            app:layout_constraintTop_toBottomOf="@+id/targetList" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
