@@ -62,6 +62,7 @@ class homeActivity : AppCompatActivity() {
         )
 
         // Set adapters to RecyclerViews
+
         breakfastRecyclerView.adapter = FoodAdapter(breakfastItems)
         lunchRecyclerView.adapter = FoodAdapter(lunchItems)
         dinnerRecyclerView.adapter = FoodAdapter(dinnerItems)
