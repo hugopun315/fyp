@@ -5,96 +5,28 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".homeActivity">
+    tools:context=".firebaseDBSearch">
 
-    <TextView
-        android:id="@+id/TDEE"
+    <EditText
+        android:id="@+id/search_bar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="50dp"
-        android:text="Your Total Daily Energy Expenditure : 2400 kal"
+        android:text=""
+        android:hint="Search food by name, for example: apple"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <TextView
-        android:id="@+id/CCT"
-        android:layout_width="wrap_content"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/fList"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:text="Calories Consumed today : 1000 kal"
-        android:textSize="18sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/TDEE" />
-
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
         android:layout_marginTop="15dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/CCT">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:id="@+id/breakfast"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp"
-                android:text="Breakfast Consumed today : 0 kal"
-                android:textSize="15sp" />
-
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/bList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp"/>
-
-            <TextView
-                android:id="@+id/lunch"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp"
-                android:text="Lunch Consumed today : 0 kal"
-                android:textSize="15sp" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/lList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp"/>
-
-
-            <TextView
-                android:id="@+id/dinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp"
-                android:text="Dinner Consumed today : 0 kal"
-                android:textSize="15sp" />
-
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/dList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="124dp"/>
-
-        </LinearLayout>
-    </ScrollView>
+        app:layout_constraintTop_toBottomOf="@id/search_bar"
+        android:layout_marginBottom="124dp"/>
 
     <!-- bottom bar -->
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -121,13 +53,13 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:id="@+id/imageView41"
+                    android:id="@+id/imageViewHome"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
                     app:srcCompat="@drawable/home" />
 
                 <TextView
-                    android:id="@+id/textView81"
+                    android:id="@+id/textViewHome"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Home"
@@ -209,6 +141,4 @@
             </LinearLayout>
         </LinearLayout>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
