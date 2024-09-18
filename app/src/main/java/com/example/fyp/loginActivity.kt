@@ -39,7 +39,8 @@ class loginActivity : AppCompatActivity() {
 
         loginButton = findViewById(R.id.btnLogin)
         loginButton.setOnClickListener {
-            loginButton.setText("hiiiiiiiiiiii")
+            val intent = Intent(this,homeActivity::class.java)
+            startActivity(intent)
         }
 
         createAccountTextView.setOnClickListener{
