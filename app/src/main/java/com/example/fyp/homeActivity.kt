@@ -20,8 +20,10 @@ class homeActivity : AppCompatActivity() {
     private lateinit var breakfastRecyclerView: RecyclerView
     private lateinit var lunchRecyclerView: RecyclerView
     private lateinit var dinnerRecyclerView: RecyclerView
-    private lateinit var searchButton1: ImageView
-    private lateinit var searchButton2: TextView
+    private lateinit var searchButtonS1: ImageView
+    private lateinit var searchButtonS2: TextView
+    private lateinit var profileButtonP1: ImageView
+    private lateinit var profileButtonP2: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -31,9 +33,10 @@ class homeActivity : AppCompatActivity() {
         breakfastRecyclerView = findViewById(R.id.bList)
         lunchRecyclerView = findViewById(R.id.lList)
         dinnerRecyclerView = findViewById(R.id.dList)
-        searchButton1 = findViewById(R.id.imageViewSearch)
-        searchButton2 = findViewById(R.id.textViewSearch)
-
+        searchButtonS1 = findViewById(R.id.imageViewSearch)
+        searchButtonS2 = findViewById(R.id.textViewSearch)
+        profileButtonP1 = findViewById(R.id.imageViewProfile)
+        profileButtonP2 = findViewById(R.id.textViewProfile)
         // Set Layout Managers
         breakfastRecyclerView.layoutManager = LinearLayoutManager(this)
         lunchRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -67,12 +70,21 @@ class homeActivity : AppCompatActivity() {
         lunchRecyclerView.adapter = FoodAdapter(lunchItems)
         dinnerRecyclerView.adapter = FoodAdapter(dinnerItems)
 
-        searchButton1.setOnClickListener {
+        searchButtonS1.setOnClickListener {
             val intent = Intent(this,firebaseDBSearch::class.java)
             startActivity(intent)
         }
-        searchButton2.setOnClickListener {
+        searchButtonS2.setOnClickListener {
             val intent = Intent(this,firebaseDBSearch::class.java)
+            startActivity(intent)
+        }
+
+        profileButtonP1.setOnClickListener {
+            val intent = Intent(this,profile::class.java)
+            startActivity(intent)
+        }
+        profileButtonP2.setOnClickListener {
+            val intent = Intent(this,profile::class.java)
             startActivity(intent)
         }
     }
