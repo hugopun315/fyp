@@ -36,6 +36,8 @@ class createAccount : AppCompatActivity() {
         setContentView(R.layout.activity_create_account)
         auth = FirebaseAuth.getInstance()
        sexRadio = findViewById(R.id.sex_list)
+        habitRadio = findViewById(R.id.exercise_list)
+        targetRadio = findViewById(R.id.targetList)
         var selectedSex: String? = null
         var selectedTarget: String? = null
         var selectedHabit: String? = null
@@ -49,13 +51,19 @@ class createAccount : AppCompatActivity() {
         createButton = findViewById(R.id.btnCreate)
 
 
-/*
+
         sexRadio.setOnCheckedChangeListener { group, checkedId ->
             selectedSex = when (checkedId) {
                 R.id.radio_male -> "Male"
                 R.id.radio_female -> "Female"
                 else -> null
             }
+            Toast.makeText(
+                baseContext,
+                selectedSex,
+                Toast.LENGTH_SHORT,
+            ).show()
+
         }
 
         habitRadio.setOnCheckedChangeListener { group, checkedId ->
@@ -67,6 +75,12 @@ class createAccount : AppCompatActivity() {
                 R.id.veryheavyExercise -> "Very Heavy Exercise"
                 else -> null
             }
+
+            Toast.makeText(
+                baseContext,
+                selectedHabit,
+                Toast.LENGTH_SHORT,
+            ).show()
         }
 
         targetRadio.setOnCheckedChangeListener { group, checkedId ->
@@ -76,9 +90,16 @@ class createAccount : AppCompatActivity() {
                 R.id.MaintainWeight -> "Maintain Weight"
                 else -> null
             }
+
+            Toast.makeText(
+                baseContext,
+                selectedTarget,
+                Toast.LENGTH_SHORT,
+            ).show()
         }
 
-        */
+
+
 
         createButton.setOnClickListener {
             /*
