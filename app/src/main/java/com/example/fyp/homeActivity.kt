@@ -2,16 +2,11 @@ package com.example.fyp
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.ListView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fyp.adapter.FoodAdapter
@@ -24,6 +19,9 @@ class homeActivity : AppCompatActivity() {
     private lateinit var searchButtonS2: TextView
     private lateinit var profileButtonP1: ImageView
     private lateinit var profileButtonP2: TextView
+    private lateinit var breakfastButton: Button
+    private lateinit var lunchButton: Button
+    private lateinit var dinnerButton: Button
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -37,6 +35,9 @@ class homeActivity : AppCompatActivity() {
         searchButtonS2 = findViewById(R.id.textViewSearch)
         profileButtonP1 = findViewById(R.id.imageViewProfile)
         profileButtonP2 = findViewById(R.id.textViewProfile)
+        breakfastButton = findViewById(R.id.bButton)
+        lunchButton = findViewById(R.id.lButton)
+        dinnerButton = findViewById(R.id.dButton)
         // Set Layout Managers
         breakfastRecyclerView.layoutManager = LinearLayoutManager(this)
         lunchRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -87,5 +88,9 @@ class homeActivity : AppCompatActivity() {
             val intent = Intent(this,profile::class.java)
             startActivity(intent)
         }
+
+        breakfastButton.setOnClickListener {  val intent = Intent(this,uploadFood::class.java)
+            startActivity(intent)
+            finish() }
     }
 }

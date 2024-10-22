@@ -13,17 +13,17 @@
         android:theme="@style/Theme.FYP"
         tools:targetApi="31">
         <activity
+            android:name=".uploadFood"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light"/>
+        <activity
             android:name=".changeBodyData"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light" >
-
-    </activity>
-
+            android:theme="@style/Theme.AppCompat.Light"></activity>
         <activity
             android:name=".profile"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat.Light"/>
-
+            android:theme="@style/Theme.AppCompat.Light" />
         <activity
             android:name=".foodDetails"
             android:exported="false"
