@@ -110,17 +110,19 @@ class uploadFood : AppCompatActivity() {
         val weight = weightEditText.text.toString()
         val qty = qtyEditText.text.toString()
         val favour = "false"
+        val cal = calEditText.text.toString()
 
         // Create a Food object
-        val dataClass = Food(name, protein, carbohydrates, fat, weight, qty, favour, imageURL)
+        val dataClass = Food(name, protein, carbohydrates, fat, weight, qty, favour, imageURL , cal , "")
 
         Log.d("UploadData", "Data Class: $dataClass")
 
         // Use a unique key for each entry
-        val key = FirebaseDatabase.getInstance().reference.child("Android Tutorials").push().key
+        val key = FirebaseDatabase.getInstance().reference.child("Demo Food").push().key
         if (key != null) {
+            dataClass.key = key
             FirebaseDatabase.getInstance().reference
-                .child("Android Tutorials")
+                .child("Demo Food")
                 .child(key)
                 .setValue(dataClass)
                 .addOnCompleteListener { task ->

@@ -1,18 +1,10 @@
 package com.example.fyp
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.fyp.adapter.FoodAdapter
 
 class firebaseDBSearch : AppCompatActivity() {
     private lateinit var homeButton1: ImageView
@@ -22,6 +14,7 @@ class firebaseDBSearch : AppCompatActivity() {
     private lateinit var profileButtonP2: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        /*
         enableEdgeToEdge()
         setContentView(R.layout.activity_firebase_dbsearch)
 
@@ -59,7 +52,7 @@ class firebaseDBSearch : AppCompatActivity() {
             startActivity(intent)
         }
 
-
+*/
 
     }
 }

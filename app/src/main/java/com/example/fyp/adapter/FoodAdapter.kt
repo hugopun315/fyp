@@ -1,20 +1,28 @@
 package com.example.fyp.adapter
 
-import com.example.fyp.FoodItem
 
 
-
+import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.example.fyp.Food
 import com.example.fyp.R
+import com.example.fyp.foodDetails
 
-class FoodAdapter(private val foodList: List<FoodItem>) : RecyclerView.Adapter<FoodAdapter.FoodViewHolder>() {
+class FoodAdapter(private val context: Context,private val foodList: List<Food>) : RecyclerView.Adapter<FoodAdapter.FoodViewHolder>() {
 
     class FoodViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val itemTextView: TextView = itemView.findViewById(R.id.itemTextView)
+        val image : ImageView = itemView.findViewById(R.id.recImage)
+        val title: TextView = itemView.findViewById(R.id.title)
+        val cal: TextView = itemView.findViewById(R.id.calories)
+        val recCard: CardView = itemView.findViewById(R.id.recCard)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FoodViewHolder {
@@ -24,8 +32,29 @@ class FoodAdapter(private val foodList: List<FoodItem>) : RecyclerView.Adapter<F
 
     override fun onBindViewHolder(holder: FoodViewHolder, position: Int) {
         val item = foodList[position]
-        holder.itemTextView.text = "${item.name} (${item.calories} cal)"
+        Glide.with(context).load(item.uri).into(holder.image)
+        holder.title.text = item.name
+        holder.cal.text = item.calories
+        holder.recCard.setOnClickListener {
+            val intent = Intent(context,foodDetails::class.java).apply {
+                putExtra("image", item.uri)
+                putExtra("title", item.name + " "  + item.weight + "g" )
+                putExtra("key", item.key)
+                putExtra("weight", item.weight)
+                putExtra("car", item.carbohydrates)
+                putExtra("pro", item.protein)
+                putExtra("fat", item.fat)
+                putExtra("cal", item.calories)
+            }
+            context.startActivity(intent)
+        }
     }
+
+
 
     override fun getItemCount() = foodList.size
 }
+
+
+
+

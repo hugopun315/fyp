@@ -53,12 +53,11 @@
                     app:srcCompat="@drawable/fav_icon" />
             </androidx.constraintlayout.widget.ConstraintLayout> <!-- end of top bar -->
 
-            <androidx.viewpager2.widget.ViewPager2
+            <ImageView
                 android:id="@+id/foodPic"
                 android:layout_width="match_parent"
                 android:layout_height="290dp"
                 android:layout_margin="16dp"
-                android:background="@drawable/apple_158989157"
                 android:padding="16dp" />
 
             <TextView
@@ -95,6 +94,15 @@
                 android:layout_marginStart="20dp"
                 android:layout_marginTop="15dp"
                 android:text="fat: 30g"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/weight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="15dp"
+                android:text="weight: 30g"
                 android:textSize="15sp" />
 
 

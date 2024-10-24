@@ -48,6 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter food calories (kcal)"
+        android:inputType="number"
         android:padding="12dp"
         android:background="@android:drawable/edit_text"
         android:layout_marginBottom="16dp"/>
@@ -64,6 +65,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter food carbohydrate (g)"
+        android:inputType="number"
         android:padding="12dp"
         android:background="@android:drawable/edit_text"
         android:layout_marginBottom="16dp"/>
@@ -80,6 +82,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter food protein (g)"
+        android:inputType="number"
         android:padding="12dp"
         android:background="@android:drawable/edit_text"
         android:layout_marginBottom="16dp"/>
@@ -96,6 +99,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter food fat (g)"
+        android:inputType="number"
         android:padding="12dp"
         android:background="@android:drawable/edit_text"
         android:layout_marginBottom="16dp"/>
@@ -112,6 +116,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter quantity"
+
         android:padding="12dp"
         android:background="@android:drawable/edit_text"
         android:layout_marginBottom="16dp"
@@ -129,6 +134,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter weight"
+
         android:padding="12dp"
         android:background="@android:drawable/edit_text"
         android:layout_marginBottom="16dp"
