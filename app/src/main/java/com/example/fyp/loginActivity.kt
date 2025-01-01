@@ -23,12 +23,18 @@ class loginActivity : AppCompatActivity() {
         super.onStart()
         // Check if user is signed in (non-null) and update UI accordingly.
 
+
+
         val currentUser = auth.currentUser
         if (currentUser != null) {
             val intent = Intent(this,homeActivity::class.java)
             startActivity(intent)
             finish()
         }
+
+
+
+
 
 
     }

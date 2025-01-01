@@ -14,6 +14,19 @@ data class Food(
     var key: String? = null
 )
 
+data class User(
+    val userID : String = "",
+        val email:String ="",
+        val hight:String ="",
+        val weight: String ="",
+        val age :String ="",
+        val sex :String ="",
+        val habit:String ="",
+        val targe:String ="",
+        var key: String? = null,
+        var tdee : Double =0.0
+        )
+
 data class FoodItem(
     val name: String,
     val calories: Int

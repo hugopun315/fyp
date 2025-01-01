@@ -1,6 +1,5 @@
 package com.example.fyp
 
-import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -8,15 +7,13 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioGroup
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class createAccount : AppCompatActivity() {
 
-    private lateinit var  auth : FirebaseAuth
+    private lateinit var auth: FirebaseAuth
 
     private lateinit var hightlEditText: EditText
     private lateinit var weightEditText: EditText
@@ -35,7 +32,7 @@ class createAccount : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_create_account)
         auth = FirebaseAuth.getInstance()
-       sexRadio = findViewById(R.id.sex_list)
+        sexRadio = findViewById(R.id.sex_list)
         habitRadio = findViewById(R.id.exercise_list)
         targetRadio = findViewById(R.id.targetList)
         var selectedSex: String? = null
@@ -107,12 +104,14 @@ class createAccount : AppCompatActivity() {
             startActivity(intent)
 */
 
-            var  email = emailEditText.text.toString()
+            var email = emailEditText.text.toString()
             var password = passwordEditText.text.toString()
             var hight = hightlEditText.text.toString()
             var weight = weightEditText.text.toString()
             var age = ageEditText.text.toString()
-
+            var sex = selectedSex
+            var target = selectedTarget
+            var habit = selectedHabit
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener() { task ->
                     if (task.isSuccessful) {
@@ -121,8 +120,31 @@ class createAccount : AppCompatActivity() {
                             "Account created.",
                             Toast.LENGTH_SHORT,
                         ).show()
+                        var BMR =0.0
+                        if(sex == "Male"){
+                            BMR = (weight.toDoubleOrNull()!! * 10 + 6.25 * hight.toDoubleOrNull()!! - 5* age.toDoubleOrNull()!! +5)
+                        }else {
+                            BMR = (weight.toDoubleOrNull()!! * 10 + 6.25 * hight.toDoubleOrNull()!! - 5* age.toDoubleOrNull()!! -161)
+                        }
+                        var TDEE = 0.0
+                        when (selectedHabit){
+                            "No Exercise" -> TDEE = BMR * 1.2
+                            "Light Exercise" -> TDEE =BMR * 1.4
+                            "Middle Exercise" -> TDEE =BMR * 1.6
+                            "Heavy Exercise" -> TDEE =BMR * 1.8
+                            "Very Heavy Exercise" -> TDEE =BMR * 2.0
+                        }
 
-                        val intent = Intent(this,homeActivity::class.java)
+                        when (selectedTarget){
+                            "Lose Weight"-> TDEE *= 0.75
+                            "Gain Weight" -> TDEE *= 1.1
+                            "Maintain Weight" -> TDEE
+                        }
+
+
+                        val user = User(auth.currentUser?.uid.toString(), email, hight, weight, age, sex.toString(), habit.toString(), target.toString(), "", TDEE)
+                       uploadData(user)
+                        val intent = Intent(this, homeActivity::class.java)
                         startActivity(intent)
                         finish()
                     } else {
@@ -140,6 +162,39 @@ class createAccount : AppCompatActivity() {
         }
 
     }
+
+    private fun uploadData(user : User) {
+
+
+        // Create a Food object
+        val dataClass : User = user
+
+        Log.d("UploadData", "Data Class: $dataClass")
+
+        // Use a unique key for each entry
+        val key = FirebaseDatabase.getInstance().reference.child("Users").push().key
+        if (key != null) {
+            dataClass.key = key
+            FirebaseDatabase.getInstance().reference
+                .child("Users")
+                .child(user.userID)
+                .child("profile")
+                .setValue(dataClass)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(this, "User Saved", Toast.LENGTH_SHORT).show()
+                    }
+                }.addOnFailureListener { e ->
+                    Log.e("UploadError", "Error uploading data: ${e.message}")
+                    Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "Failed to generate unique key", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+
 
 
 }
