@@ -70,7 +70,7 @@ class homeActivity : AppCompatActivity() {
         breakfastRecyclerView.adapter = adapter
 
 
-
+/*
         val databaseReference = FirebaseDatabase.getInstance().getReference("Demo Food")
         eventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -91,7 +91,7 @@ class homeActivity : AppCompatActivity() {
         }
         databaseReference.addValueEventListener(eventListener) // Add the listener to the reference
 
-
+*/
 
 
         // Set up click listeners for buttons
@@ -112,9 +112,15 @@ class homeActivity : AppCompatActivity() {
             startActivity(intent)
         }
         breakfastButton.setOnClickListener {
+            val intent = Intent(this, FindFoodView::class.java)
+            startActivity(intent)
+            finish()
+         /*
             val intent = Intent(this, uploadFood::class.java)
             startActivity(intent)
             finish()
+
+            */
         }
     }
 
