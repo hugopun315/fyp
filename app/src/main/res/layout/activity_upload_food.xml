@@ -91,7 +91,7 @@
         android:id="@+id/fat_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="protein"
+        android:text="fat"
         android:layout_marginBottom="8dp"/>
 
     <EditText

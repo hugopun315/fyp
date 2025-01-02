@@ -20,12 +20,13 @@ class FindFoodView : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_find_food_view)
         foodRecyclerView = findViewById(R.id.foodList)
-
+        val bundle = intent.extras
+        val time = bundle?.getString("time") ?: ""
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
         foodRecyclerView.layoutManager = LinearLayoutManager(this)
         val dataList = ArrayList<Food>()
-        val adapter = FoodAdapter(this, dataList)
+        val adapter = FoodAdapter(this, dataList,time )
         foodRecyclerView.adapter = adapter
         val databaseReference = FirebaseDatabase.getInstance().getReference("Demo Food")
         eventListener = object : ValueEventListener {

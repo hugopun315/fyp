@@ -1,5 +1,6 @@
 package com.example.fyp
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +18,10 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+
 
 class homeActivity : AppCompatActivity() {
     private lateinit var breakfastRecyclerView: RecyclerView
@@ -40,12 +45,13 @@ class homeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home)
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
+        val todayDate = getCurrentDate()
 
-        if (currentUser != null) {
-            val userID = currentUser.uid
-            databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("profile")
+            val userID = currentUser?.uid
+
+            databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("profile")
             fetchUserTDEE(databaseReference)
-        }
+
 
         // Initialize RecyclerViews
         breakfastRecyclerView = findViewById(R.id.bList)
@@ -66,12 +72,12 @@ class homeActivity : AppCompatActivity() {
         dinnerRecyclerView.layoutManager = LinearLayoutManager(this)
 
         val dataList = ArrayList<Food>()
-        val adapter = FoodAdapter(this, dataList)
+        val adapter = FoodAdapter(this, dataList, "")
         breakfastRecyclerView.adapter = adapter
 
 
-/*
-        val databaseReference = FirebaseDatabase.getInstance().getReference("Demo Food")
+
+        val databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("breakfast")
         eventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 dataList.clear()
@@ -91,7 +97,7 @@ class homeActivity : AppCompatActivity() {
         }
         databaseReference.addValueEventListener(eventListener) // Add the listener to the reference
 
-*/
+
 
 
         // Set up click listeners for buttons
@@ -112,15 +118,25 @@ class homeActivity : AppCompatActivity() {
             startActivity(intent)
         }
         breakfastButton.setOnClickListener {
-            val intent = Intent(this, FindFoodView::class.java)
-            startActivity(intent)
-            finish()
-         /*
+
+
+             val context: Context = this
+            val intent = Intent(this, FindFoodView::class.java).apply {
+                putExtra("time", "breakfast")
+
+            }
+
+            context.startActivity(intent)
+
+
+
+
+            /*
             val intent = Intent(this, uploadFood::class.java)
             startActivity(intent)
-            finish()
 
-            */
+*/
+
         }
     }
 
@@ -137,6 +153,12 @@ class homeActivity : AppCompatActivity() {
                 Log.e("FirebaseError", databaseError.message) // Handle possible errors
             }
         })
+    }
+
+    fun getCurrentDate(): String {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return dateFormat.format(calendar.time)
     }
 }
 

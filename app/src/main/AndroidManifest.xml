@@ -30,7 +30,7 @@
             android:theme="@style/Theme.AppCompat.Light" />
         <activity
             android:name=".foodDetails"
-            android:exported="false"
+            android:exported="true"
             android:theme="@style/Theme.AppCompat.Light" />
         <activity
             android:name=".firebaseDBSearch"

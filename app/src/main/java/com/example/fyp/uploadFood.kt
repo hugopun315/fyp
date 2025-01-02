@@ -123,7 +123,7 @@ class uploadFood : AppCompatActivity() {
             dataClass.key = key
             FirebaseDatabase.getInstance().reference
                 .child("Demo Food")
-                .child(key)
+                .child(name)
                 .setValue(dataClass)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {

@@ -2,19 +2,43 @@ package com.example.fyp
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 
 class foodDetails : AppCompatActivity() {
     private var key: String = ""
     private var imageUrl: String = ""
-
+    private var fav : String = ""
+    private var qty : String = ""
+    private var foodTitle : String = ""
+    private var foodWeight  : String = ""
+    private var foodCar : String = ""
+    private var foodPro : String = ""
+    private var foodFat : String = ""
+    private var foodCal : String = ""
+    private var time : String = ""
+    private var auth= FirebaseAuth.getInstance()
+    private lateinit var decreaseQty: Button
+    private lateinit var increaseQty: Button
+    private lateinit var quantityEditText: EditText
+    private lateinit var addButton: Button
+    val currentUser = auth.currentUser
+    val userID = currentUser?.uid
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_food_details)
+        val todayDate = getCurrentDate()
         val weight: TextView = findViewById(R.id.weight)
         val title: TextView = findViewById(R.id.titleTextView)
         val image: ImageView = findViewById(R.id.foodPic)
@@ -22,17 +46,40 @@ class foodDetails : AppCompatActivity() {
         val car: TextView = findViewById(R.id.carbohydrate)
         val pro: TextView = findViewById(R.id.protein)
         val fat: TextView = findViewById(R.id.fat)
+        decreaseQty = findViewById(R.id.decreaseQty)
+        increaseQty = findViewById(R.id.increaseQty)
+        quantityEditText = findViewById(R.id.quantity)
 
+        addButton = findViewById(R.id.addRecord)
+        decreaseQty.setOnClickListener {
+            val currentQty = quantityEditText.text.toString().toInt()
+            if (currentQty > 1) {
+                quantityEditText.setText((currentQty - 1).toString())
+            }
+        }
+        increaseQty.setOnClickListener {
+            val currentQty = quantityEditText.text.toString().toInt()
+            quantityEditText.setText((currentQty + 1).toString())
+        }
         val bundle = intent.extras
         if (bundle != null) {
-            title.text = bundle.getString("title") ?: "No Title"
-            cal.text = "calories: " +bundle.getString("cal") + " kcal" ?: "0"
-            car.text = "carbohydrates: " + bundle.getString("car") + " g"?: "0"
-            pro.text = "protein: " + bundle.getString("pro") +  " g"?: "0"
-            fat.text = "fat: " +bundle.getString("fat") + " g"?: "0"
-            weight.text = "weight: " + bundle.getString("weight") + " g"?: "0"
+            title.text =  todayDate  //bundle.getString("title") ?: "No Title"
+            cal.text = "calories: " + bundle.getString("cal") + " kcal" ?: "0"
+            car.text = "carbohydrates: " + bundle.getString("car") + " g" ?: "0"
+            pro.text = "protein: " + bundle.getString("pro") + " g" ?: "0"
+            fat.text = "fat: " + bundle.getString("fat") + " g" ?: "0"
+            weight.text = "weight: " + bundle.getString("weight") + " g" ?: "0"
             key = bundle.getString("key") ?: ""
             imageUrl = bundle.getString("image") ?: ""
+            fav = bundle.getString("fav") ?: ""
+            qty = bundle.getString("qty") ?: ""
+           foodTitle = bundle.getString("title") ?: ""
+            foodWeight = bundle.getString("weight") ?: ""
+            foodCar = bundle.getString("car") ?: ""
+            foodPro = bundle.getString("pro") ?: ""
+            foodFat= bundle.getString("fat") ?: ""
+            foodCal = bundle.getString("cal") ?: ""
+            time = bundle.getString("time") ?: ""
 
             // Load the image only if imageUrl is not empty
             if (imageUrl.isNotEmpty()) {
@@ -45,5 +92,63 @@ class foodDetails : AppCompatActivity() {
             // Handle the case when bundle is null
             Log.e("foodDetails", "Bundle is null")
         }
+
+
+        addButton.setOnClickListener {
+            uploadFood()
+        }
+    }
+
+
+    private fun uploadFood() {
+        val name = foodTitle
+        val protein = foodPro
+        val carbohydrates = foodCar
+        val fat = foodFat
+        val weight = foodWeight
+        val qty = qty
+        val favour = "false"
+        val cal = foodCal
+        val imageURL = imageUrl
+        val foodKey = key
+        val todayDate = getCurrentDate()
+        val time = time
+        // Create a Food object
+        val dataClass = Food(name, protein, carbohydrates, fat, weight, qty, favour, imageURL , cal , foodKey)
+
+        Log.d("UploadData", "Data Class: $dataClass")
+
+        // Use a unique key for each entry
+        val key = FirebaseDatabase.getInstance().reference.child("Demo Food").push().key
+        if (key != null) {
+            if (userID != null) {
+                FirebaseDatabase.getInstance().reference
+                    .child("Users")
+                    .child(userID)
+                    .child("meals")
+                    .child("$todayDate")
+                    .child("$time")
+                    .child("Food")
+                    .setValue(dataClass)
+                    .addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
+
+                        }
+                    }.addOnFailureListener { e ->
+                        Log.e("UploadError", "Error uploading data: ${e.message}")
+                        Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+                    }
+            }
+        } else {
+            Toast.makeText(this, "Failed to generate unique key", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
+    fun getCurrentDate(): String {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return dateFormat.format(calendar.time)
     }
 }
