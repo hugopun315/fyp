@@ -1,5 +1,7 @@
 package com.example.fyp
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -38,6 +40,7 @@ class foodDetails : AppCompatActivity() {
     private lateinit var addButton: Button
     val currentUser = auth.currentUser
     val userID = currentUser?.uid
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_food_details)
@@ -52,6 +55,8 @@ class foodDetails : AppCompatActivity() {
         decreaseQty = findViewById(R.id.decreaseQty)
         increaseQty = findViewById(R.id.increaseQty)
         quantityEditText = findViewById(R.id.quantity)
+
+
 
         addButton = findViewById(R.id.addRecord)
         decreaseQty.setOnClickListener {
@@ -76,7 +81,7 @@ class foodDetails : AppCompatActivity() {
             imageUrl = bundle.getString("image") ?: ""
             fav = bundle.getString("fav") ?: ""
             qty = bundle.getString("qty") ?: ""
-           foodTitle = bundle.getString("title") ?: ""
+            foodTitle = bundle.getString("title") ?: ""
             foodWeight = bundle.getString("weight") ?: ""
             foodCar = bundle.getString("car") ?: ""
             foodPro = bundle.getString("pro") ?: ""
@@ -100,6 +105,8 @@ class foodDetails : AppCompatActivity() {
         addButton.setOnClickListener {
             uploadFood()
         }
+
+
     }
 
 
@@ -181,6 +188,12 @@ class foodDetails : AppCompatActivity() {
                 Log.e("FirebaseError", "Error fetching data: ${databaseError.message}")
             }
         })
+
+        val context: Context = this
+        val intent = Intent(this, FindFoodView::class.java).apply {
+            putExtra("time", time)
+        }
+        context.startActivity(intent)
     }
 
     private fun getCurrentDate(): String {

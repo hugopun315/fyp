@@ -1,7 +1,10 @@
 package com.example.fyp
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,10 +19,18 @@ class FindFoodView : AppCompatActivity() {
     private lateinit var foodRecyclerView: RecyclerView
     private lateinit var auth: FirebaseAuth
     private lateinit var eventListener: ValueEventListener // Declare the eventListener variable
+    private lateinit var homeButton1: ImageView
+    private lateinit var homeButton2: TextView
+    private lateinit var profileButtonP1: ImageView
+    private lateinit var profileButtonP2: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_find_food_view)
         foodRecyclerView = findViewById(R.id.foodList)
+        homeButton1 = findViewById(R.id.imageViewHome)
+        homeButton2 = findViewById(R.id.textViewHome)
+        profileButtonP1 = findViewById(R.id.imageViewProfile)
+        profileButtonP2 = findViewById(R.id.textViewProfile)
         val bundle = intent.extras
         val time = bundle?.getString("time") ?: ""
         auth = FirebaseAuth.getInstance()
@@ -49,6 +60,24 @@ class FindFoodView : AppCompatActivity() {
         databaseReference.addValueEventListener(eventListener) // Add the listener to the reference
 
 
+
+        homeButton1.setOnClickListener {
+            val intent = Intent(this,homeActivity::class.java)
+            startActivity(intent)
+        }
+        homeButton2.setOnClickListener {
+            val intent = Intent(this,homeActivity::class.java)
+            startActivity(intent)
+        }
+
+        profileButtonP1.setOnClickListener {
+            val intent = Intent(this, profile::class.java)
+            startActivity(intent)
+        }
+        profileButtonP2.setOnClickListener {
+            val intent = Intent(this, profile::class.java)
+            startActivity(intent)
+        }
 
     }
 }
