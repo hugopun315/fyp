@@ -10,7 +10,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -63,7 +66,7 @@ class foodDetails : AppCompatActivity() {
         }
         val bundle = intent.extras
         if (bundle != null) {
-            title.text =  todayDate  //bundle.getString("title") ?: "No Title"
+            title.text =  bundle.getString("title") ?: "No Title"
             cal.text = "calories: " + bundle.getString("cal") + " kcal" ?: "0"
             car.text = "carbohydrates: " + bundle.getString("car") + " g" ?: "0"
             pro.text = "protein: " + bundle.getString("pro") + " g" ?: "0"
@@ -108,13 +111,15 @@ class foodDetails : AppCompatActivity() {
         val weight = foodWeight
         val qty = qty
         val favour = "false"
-        val cal = foodCal
+        val cal = foodCal.toIntOrNull() ?: 0
         val imageURL = imageUrl
         val foodKey = key
         val todayDate = getCurrentDate()
         val time = time
+        val userID = FirebaseAuth.getInstance().currentUser?.uid
+
         // Create a Food object
-        val dataClass = Food(name, protein, carbohydrates, fat, weight, qty, favour, imageURL , cal , foodKey)
+        val dataClass = Food(name, protein, carbohydrates, fat, weight, qty, favour, imageURL, cal.toString(), foodKey)
 
         Log.d("UploadData", "Data Class: $dataClass")
 
@@ -122,18 +127,21 @@ class foodDetails : AppCompatActivity() {
         val key = FirebaseDatabase.getInstance().reference.child("Demo Food").push().key
         if (key != null) {
             if (userID != null) {
-                FirebaseDatabase.getInstance().reference
+                val userMealsRef = FirebaseDatabase.getInstance().reference
                     .child("Users")
                     .child(userID)
                     .child("meals")
-                    .child("$todayDate")
-                    .child("$time")
+                    .child(todayDate)
+                    .child(time)
                     .child("Food")
-                    .setValue(dataClass)
+                    .child(name)
+
+                userMealsRef.setValue(dataClass)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
-
+                            // Update total calories
+                            updateTotalCalories(userID, todayDate)
                         }
                     }.addOnFailureListener { e ->
                         Log.e("UploadError", "Error uploading data: ${e.message}")
@@ -145,8 +153,37 @@ class foodDetails : AppCompatActivity() {
         }
     }
 
+    private fun updateTotalCalories(userId: String, date: String) {
+        val mealsRef = FirebaseDatabase.getInstance().reference
+            .child("Users")
+            .child(userId)
+            .child("meals")
+            .child(date)
 
-    fun getCurrentDate(): String {
+
+        mealsRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                var totalCalories = 0
+
+                for (mealSnapshot in dataSnapshot.children) {
+                    if (mealSnapshot.key != "record") {
+                        for (foodSnapshot in mealSnapshot.child("Food").children) {
+                            val calories = foodSnapshot.child("calories").getValue(String::class.java)?.toIntOrNull() ?: 0
+                            totalCalories += calories
+                        }
+                    }
+                }
+
+                mealsRef.child("record").setValue(totalCalories.toString())
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e("FirebaseError", "Error fetching data: ${databaseError.message}")
+            }
+        })
+    }
+
+    private fun getCurrentDate(): String {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return dateFormat.format(calendar.time)

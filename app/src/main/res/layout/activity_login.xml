@@ -120,10 +120,11 @@
 
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.463"
+        app:layout_constraintHorizontal_bias="0.475"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/inputPassword"
         tools:ignore="MissingConstraints"
+        android:visibility="invisible"
         tools:visibility="visible" />
 
     <TextView

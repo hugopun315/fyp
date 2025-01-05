@@ -22,7 +22,6 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-
 class homeActivity : AppCompatActivity() {
     private lateinit var breakfastRecyclerView: RecyclerView
     private lateinit var lunchRecyclerView: RecyclerView
@@ -37,6 +36,7 @@ class homeActivity : AppCompatActivity() {
     private lateinit var eventListener: ValueEventListener // Declare the eventListener variable
     private lateinit var auth: FirebaseAuth
     private lateinit var TDEEView: TextView
+    private lateinit var CCTView: TextView
     private lateinit var databaseReference: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,11 +47,13 @@ class homeActivity : AppCompatActivity() {
         val currentUser = auth.currentUser
         val todayDate = getCurrentDate()
 
-            val userID = currentUser?.uid
+        val userID = currentUser?.uid
 
-            databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("profile")
-            fetchUserTDEE(databaseReference)
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("profile")
+        fetchUserTDEE(databaseReference)
 
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("record")
+        fetchUserCCT(databaseReference)
 
         // Initialize RecyclerViews
         breakfastRecyclerView = findViewById(R.id.bList)
@@ -65,40 +67,85 @@ class homeActivity : AppCompatActivity() {
         lunchButton = findViewById(R.id.lButton)
         dinnerButton = findViewById(R.id.dButton)
         TDEEView = findViewById(R.id.TDEE)
+        CCTView = findViewById(R.id.CCT)
 
         // Set Layout Managers
         breakfastRecyclerView.layoutManager = LinearLayoutManager(this)
         lunchRecyclerView.layoutManager = LinearLayoutManager(this)
         dinnerRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        val dataList = ArrayList<Food>()
-        val adapter = FoodAdapter(this, dataList, "")
-        breakfastRecyclerView.adapter = adapter
+        val breakfastDataList = ArrayList<Food>()
+        val lunchDataList = ArrayList<Food>()
+        val breakfastAdapter = FoodAdapter(this, breakfastDataList, "")
+        val lunchAdapter = FoodAdapter(this, lunchDataList, "")
+        breakfastRecyclerView.adapter = breakfastAdapter
+        lunchRecyclerView.adapter = lunchAdapter
+        val dinnerDataList = ArrayList<Food>()
+        val dinnerAdapter = FoodAdapter(this, dinnerDataList, "")
+        dinnerRecyclerView.adapter = dinnerAdapter
 
-
-
-        val databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("breakfast")
+        // Fetch breakfast food items
+        val breakfastDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("breakfast").child("Food")
         eventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                dataList.clear()
+                breakfastDataList.clear()
                 for (itemSnapshot in snapshot.children) {
                     val dataClass = itemSnapshot.getValue(Food::class.java)
                     dataClass?.let {
                         it.key = itemSnapshot.key
-                        dataList.add(it)
+                        breakfastDataList.add(it)
                     }
                 }
-                adapter.notifyDataSetChanged()
+                breakfastAdapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("FirebaseError", error.message) // Handle possible errors
             }
         }
-        databaseReference.addValueEventListener(eventListener) // Add the listener to the reference
+        breakfastDatabaseReference.addValueEventListener(eventListener) // Add the listener to the reference
 
+        // Fetch lunch food items
+        val lunchDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("lunch").child("Food")
+        val lunchEventListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                lunchDataList.clear()
+                for (itemSnapshot in snapshot.children) {
+                    val dataClass = itemSnapshot.getValue(Food::class.java)
+                    dataClass?.let {
+                        it.key = itemSnapshot.key
+                        lunchDataList.add(it)
+                    }
+                }
+                lunchAdapter.notifyDataSetChanged()
+            }
 
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("FirebaseError", error.message) // Handle possible errors
+            }
+        }
+        lunchDatabaseReference.addValueEventListener(lunchEventListener) // Add the listener to the reference
 
+// Fetch dinner food items
+        val dinnerDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("dinner").child("Food")
+        val dinnerEventListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                dinnerDataList.clear()
+                for (itemSnapshot in snapshot.children) {
+                    val dataClass = itemSnapshot.getValue(Food::class.java)
+                    dataClass?.let {
+                        it.key = itemSnapshot.key
+                        dinnerDataList.add(it)
+                    }
+                }
+                dinnerAdapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("FirebaseError", error.message) // Handle possible errors
+            }
+        }
+        dinnerDatabaseReference.addValueEventListener(dinnerEventListener) // Add the listener to the reference
 
         // Set up click listeners for buttons
         searchButtonS1.setOnClickListener {
@@ -118,25 +165,27 @@ class homeActivity : AppCompatActivity() {
             startActivity(intent)
         }
         breakfastButton.setOnClickListener {
-
-
-             val context: Context = this
+            val context: Context = this
             val intent = Intent(this, FindFoodView::class.java).apply {
                 putExtra("time", "breakfast")
-
             }
-
             context.startActivity(intent)
+        }
 
+        lunchButton.setOnClickListener {
+            val context: Context = this
+            val intent = Intent(this, FindFoodView::class.java).apply {
+                putExtra("time", "lunch")
+            }
+            context.startActivity(intent)
+        }
 
-
-
-            /*
-            val intent = Intent(this, uploadFood::class.java)
-            startActivity(intent)
-
-*/
-
+        dinnerButton.setOnClickListener {
+            val context: Context = this
+            val intent = Intent(this, FindFoodView::class.java).apply {
+                putExtra("time", "dinner")
+            }
+            context.startActivity(intent)
         }
     }
 
@@ -146,6 +195,21 @@ class homeActivity : AppCompatActivity() {
                 val userProfile = dataSnapshot.getValue(UserProfile::class.java)
                 userProfile?.let {
                     TDEEView.text = "Your Total Daily Energy Expenditure : " + it.tdee.toString() + " kals "
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e("FirebaseError", databaseError.message) // Handle possible errors
+            }
+        })
+    }
+
+    private fun fetchUserCCT(databaseReference: DatabaseReference) {
+        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val record = dataSnapshot.getValue(String::class.java)
+                record?.let {
+                    CCTView.text = "Calories Consumed today : $it kals"
                 }
             }
 

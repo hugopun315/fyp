@@ -37,7 +37,7 @@ class FoodAdapter(private val context: Context, private val foodList: List<Food>
         holder.recCard.setOnClickListener {
             val intent = Intent(context, foodDetails::class.java).apply {
                 putExtra("image", item.uri)
-                putExtra("title", item.name + " " + item.weight + "g")
+                putExtra("title", item.name)
                 putExtra("key", item.key)
                 putExtra("weight", item.weight)
                 putExtra("car", item.carbohydrates)

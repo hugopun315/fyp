@@ -50,6 +50,7 @@ class loginActivity : AppCompatActivity() {
         loginButton = findViewById(R.id.btnLogin)
         createAccountTextView = findViewById(R.id.createAccount)
         errorText = findViewById(R.id.error)
+
         /*
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.login)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
