@@ -47,9 +47,9 @@ class FoodAdapter(private val context: Context, private val foodList: List<Food>
                 putExtra("fav", item.favour)
                 putExtra("qty", item.qty)
                 putExtra("time", time) // Pass the time extra
-                if(value =="record"){
-                    putExtra("display", value)
-                }
+
+                putExtra("display", value)
+
             }
             context.startActivity(intent)
         }

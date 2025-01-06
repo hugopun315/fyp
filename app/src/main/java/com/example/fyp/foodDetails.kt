@@ -94,6 +94,8 @@ class foodDetails : AppCompatActivity() {
 
             if (display == "record"){
                 addButton.visibility = View.GONE
+            }else{
+                addButton.text = "remove"
             }
 
             // Load the image only if imageUrl is not empty
@@ -110,7 +112,14 @@ class foodDetails : AppCompatActivity() {
 
 
         addButton.setOnClickListener {
-            uploadFood()
+            if(addButton.text == "remove"){
+                removeFood()
+
+            }
+            else{
+                uploadFood()
+            }
+
         }
 
 
@@ -167,13 +176,46 @@ class foodDetails : AppCompatActivity() {
         }
     }
 
+    private fun removeFood() {
+        val name = foodTitle
+        val todayDate = getCurrentDate()
+        val time = time
+        val userID = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userID != null) {
+            val userMealsRef = FirebaseDatabase.getInstance().reference
+                .child("Users")
+                .child(userID)
+                .child("meals")
+                .child(todayDate)
+                .child(display)
+                .child("Food")
+                .child(name)
+
+
+
+            userMealsRef.removeValue()
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(this, "Removed", Toast.LENGTH_SHORT).show()
+                        // Update total calories
+                        updateTotalCalories(userID, todayDate)
+                    }
+                }.addOnFailureListener { e ->
+                    Log.e("RemoveError", "Error removing data: ${e.message}")
+                    Toast.makeText(this, e.message, Toast.LENGTH_SHORT).show()
+                }
+
+
+        }
+    }
+
     private fun updateTotalCalories(userId: String, date: String) {
         val mealsRef = FirebaseDatabase.getInstance().reference
             .child("Users")
             .child(userId)
             .child("meals")
             .child(date)
-
 
         mealsRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
