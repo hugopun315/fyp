@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -33,6 +34,7 @@ class foodDetails : AppCompatActivity() {
     private var foodFat : String = ""
     private var foodCal : String = ""
     private var time : String = ""
+    private var display : String = ""
     private var auth= FirebaseAuth.getInstance()
     private lateinit var decreaseQty: Button
     private lateinit var increaseQty: Button
@@ -88,6 +90,11 @@ class foodDetails : AppCompatActivity() {
             foodFat= bundle.getString("fat") ?: ""
             foodCal = bundle.getString("cal") ?: ""
             time = bundle.getString("time") ?: ""
+            display = bundle.getString("display") ?: ""
+
+            if (display == "record"){
+                addButton.visibility = View.GONE
+            }
 
             // Load the image only if imageUrl is not empty
             if (imageUrl.isNotEmpty()) {

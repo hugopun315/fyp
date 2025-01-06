@@ -13,9 +13,13 @@
         android:theme="@style/Theme.FYP"
         tools:targetApi="31">
         <activity
-            android:name=".FindFoodView"
+            android:name=".DailyRecordActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Light"/>
+        <activity
+            android:name=".FindFoodView"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light" />
         <activity
             android:name=".uploadFood"
             android:exported="true"
