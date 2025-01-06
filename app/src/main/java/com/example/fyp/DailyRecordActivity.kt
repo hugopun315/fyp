@@ -47,6 +47,9 @@ class DailyRecordActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
         val userID = currentUser?.uid
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("profile")
+
         buttonRecord = findViewById(R.id.viewRecordButton)
 
         breakfastRecyclerView.layoutManager = LinearLayoutManager(this)
