@@ -76,12 +76,12 @@ class homeActivity : AppCompatActivity() {
 
         val breakfastDataList = ArrayList<Food>()
         val lunchDataList = ArrayList<Food>()
-        val breakfastAdapter = FoodAdapter(this, breakfastDataList, "", "breakfast")
-        val lunchAdapter = FoodAdapter(this, lunchDataList, "", "lunch")
+        val breakfastAdapter = FoodAdapter(this, breakfastDataList, "breakfast", todayDate , "R")
+        val lunchAdapter = FoodAdapter(this, lunchDataList, "lunch", todayDate, "R")
         breakfastRecyclerView.adapter = breakfastAdapter
         lunchRecyclerView.adapter = lunchAdapter
         val dinnerDataList = ArrayList<Food>()
-        val dinnerAdapter = FoodAdapter(this, dinnerDataList, "","dinner")
+        val dinnerAdapter = FoodAdapter(this, dinnerDataList, "dinner",todayDate, "R")
         dinnerRecyclerView.adapter = dinnerAdapter
 
         // Fetch breakfast food items

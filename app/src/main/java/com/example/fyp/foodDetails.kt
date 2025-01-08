@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -34,7 +33,8 @@ class foodDetails : AppCompatActivity() {
     private var foodFat : String = ""
     private var foodCal : String = ""
     private var time : String = ""
-    private var display : String = ""
+    private var date : String = ""
+    private var value : String = ""
     private var auth= FirebaseAuth.getInstance()
     private lateinit var decreaseQty: Button
     private lateinit var increaseQty: Button
@@ -46,7 +46,6 @@ class foodDetails : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_food_details)
-        val todayDate = getCurrentDate()
         val weight: TextView = findViewById(R.id.weight)
         val title: TextView = findViewById(R.id.titleTextView)
         val image: ImageView = findViewById(R.id.foodPic)
@@ -90,11 +89,10 @@ class foodDetails : AppCompatActivity() {
             foodFat= bundle.getString("fat") ?: ""
             foodCal = bundle.getString("cal") ?: ""
             time = bundle.getString("time") ?: ""
-            display = bundle.getString("display") ?: ""
+            date= bundle.getString("date") ?: ""
+            value = bundle.getString("value") ?: ""
 
-            if (display == "record"){
-                addButton.visibility = View.GONE
-            }else{
+            if (value == "R"){
                 addButton.text = "remove"
             }
 
@@ -137,7 +135,7 @@ class foodDetails : AppCompatActivity() {
         val cal = foodCal.toIntOrNull() ?: 0
         val imageURL = imageUrl
         val foodKey = key
-        val todayDate = getCurrentDate()
+        val date = date
         val time = time
         val userID = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -154,7 +152,7 @@ class foodDetails : AppCompatActivity() {
                     .child("Users")
                     .child(userID)
                     .child("meals")
-                    .child(todayDate)
+                    .child(date)
                     .child(time)
                     .child("Food")
                     .child(name)
@@ -164,7 +162,7 @@ class foodDetails : AppCompatActivity() {
                         if (task.isSuccessful) {
                             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
                             // Update total calories
-                            updateTotalCalories(userID, todayDate)
+                            updateTotalCalories(userID, date)
                         }
                     }.addOnFailureListener { e ->
                         Log.e("UploadError", "Error uploading data: ${e.message}")
@@ -178,7 +176,7 @@ class foodDetails : AppCompatActivity() {
 
     private fun removeFood() {
         val name = foodTitle
-        val todayDate = getCurrentDate()
+        val date = date
         val time = time
         val userID = FirebaseAuth.getInstance().currentUser?.uid
 
@@ -187,8 +185,8 @@ class foodDetails : AppCompatActivity() {
                 .child("Users")
                 .child(userID)
                 .child("meals")
-                .child(todayDate)
-                .child(display)
+                .child(date)
+                .child(time)
                 .child("Food")
                 .child(name)
 
@@ -199,7 +197,7 @@ class foodDetails : AppCompatActivity() {
                     if (task.isSuccessful) {
                         Toast.makeText(this, "Removed", Toast.LENGTH_SHORT).show()
                         // Update total calories
-                        updateTotalCalories(userID, todayDate)
+                        updateTotalCalories(userID, date)
                     }
                 }.addOnFailureListener { e ->
                     Log.e("RemoveError", "Error removing data: ${e.message}")

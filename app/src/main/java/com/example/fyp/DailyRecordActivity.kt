@@ -30,6 +30,7 @@ class DailyRecordActivity : AppCompatActivity() {
     private lateinit var searchButtonS1: ImageView
     private lateinit var searchButtonS2: TextView
     private lateinit var CCTView: TextView
+
     private lateinit var databaseReference: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,19 +61,19 @@ class DailyRecordActivity : AppCompatActivity() {
         val lunchDataList = ArrayList<Food>()
         val dinnerDataList = ArrayList<Food>()
 
-        val breakfastAdapter = FoodAdapter(this, breakfastDataList, "", "record")
-        val lunchAdapter = FoodAdapter(this, lunchDataList, "", "record")
-        val dinnerAdapter = FoodAdapter(this, dinnerDataList, "", "record")
-
-        breakfastRecyclerView.adapter = breakfastAdapter
-        lunchRecyclerView.adapter = lunchAdapter
-        dinnerRecyclerView.adapter = dinnerAdapter
 
         buttonRecord.setOnClickListener {
             val day = datePicker.dayOfMonth
             val month = datePicker.month + 1 // Month is 0-based
             val year = datePicker.year
             val selectedDate = String.format("%04d-%02d-%02d", year, month, day)
+            val breakfastAdapter = FoodAdapter(this, breakfastDataList, "breakfast", selectedDate, "R")
+            val lunchAdapter = FoodAdapter(this, lunchDataList, "lunch", selectedDate,"R")
+            val dinnerAdapter = FoodAdapter(this, dinnerDataList, "dinner", selectedDate,"R")
+
+            breakfastRecyclerView.adapter = breakfastAdapter
+            lunchRecyclerView.adapter = lunchAdapter
+            dinnerRecyclerView.adapter = dinnerAdapter
 
             if (userID != null) {
 

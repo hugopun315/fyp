@@ -15,7 +15,7 @@ import com.example.fyp.Food
 import com.example.fyp.R
 import com.example.fyp.foodDetails
 
-class FoodAdapter(private val context: Context, private val foodList: List<Food>, private val time: String, private val value : String) : RecyclerView.Adapter<FoodAdapter.FoodViewHolder>() {
+class FoodAdapter(private val context: Context, private val foodList: List<Food>, private val time: String, private val date : String, private val value : String) : RecyclerView.Adapter<FoodAdapter.FoodViewHolder>() {
 
     class FoodViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val image: ImageView = itemView.findViewById(R.id.recImage)
@@ -48,7 +48,9 @@ class FoodAdapter(private val context: Context, private val foodList: List<Food>
                 putExtra("qty", item.qty)
                 putExtra("time", time) // Pass the time extra
 
-                putExtra("display", value)
+                putExtra("date", date)
+
+                putExtra("value", value)
 
             }
             context.startActivity(intent)
