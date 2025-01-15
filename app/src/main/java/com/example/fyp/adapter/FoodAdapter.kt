@@ -46,6 +46,7 @@ class FoodAdapter(private val context: Context, private val foodList: List<Food>
                 putExtra("time", time) // Pass the time extra
                 putExtra("date", date)
                 putExtra("key", item.key)
+                putExtra("brands", item.brands)
                 putExtra("value", value)
             }
             context.startActivity(intent)

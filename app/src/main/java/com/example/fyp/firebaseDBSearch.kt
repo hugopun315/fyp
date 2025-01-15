@@ -82,7 +82,7 @@ class firebaseDBSearch : AppCompatActivity() {
     private fun fetchFoodData(adapter: FoodAdapter, dataList: ArrayList<Food>) {
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://world.openfoodfacts.org/api/v2/search?categories_tags_en=chicken%20breast&energy-kj_100g%3C500&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url,code")
+            .url("https://world.openfoodfacts.org/api/v2/search?categories_tags=chicken%20breast&energy-kj_100g%3C500&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url,code,brands")
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
@@ -101,16 +101,17 @@ class firebaseDBSearch : AppCompatActivity() {
                     for (i in 0 until productsArray.length()) {
                         val productObject = productsArray.getJSONObject(i)
                         val foodItem = Food(
-                            name = if (productObject.has("product_name")) productObject.getString("product_name") else "",
-                            carbohydrates = if (productObject.has("carbohydrates_100g")) productObject.getDouble("carbohydrates_100g").toString() else "",
-                            calories = if (productObject.has("energy-kcal_100g")) productObject.getDouble("energy-kcal_100g").toString() else "",
-                            fat = if (productObject.has("fat_100g")) productObject.getDouble("fat_100g").toString() else "",
-                            protein = if (productObject.has("proteins_100g")) productObject.getDouble("proteins_100g").toString() else "",
+                            name = if (productObject.has("product_name")) productObject.getString("product_name") else "API missing data",
+                            carbohydrates = if (productObject.has("carbohydrates_100g")) productObject.getDouble("carbohydrates_100g").toString() else "API missing data",
+                            calories = if (productObject.has("energy-kcal_100g")) productObject.getDouble("energy-kcal_100g").toString() else "API missing data",
+                            fat = if (productObject.has("fat_100g")) productObject.getDouble("fat_100g").toString() else "API missing data",
+                            protein = if (productObject.has("proteins_100g")) productObject.getDouble("proteins_100g").toString() else "API missing data",
                             uri = if (productObject.has("image_url")) productObject.getString("image_url") else "",
                             weight = "100",
                             qty = "1",
                             favour = "",
-                            key = if (productObject.has("code")) productObject.getString("code") else ""
+                            key = if (productObject.has("code")) productObject.getString("code") else "API missing data",
+                            brands = if (productObject.has("brands")) productObject.getString("brands") else "API missing data"
                         )
                         dataList.add(foodItem)
                     }
@@ -126,7 +127,7 @@ class firebaseDBSearch : AppCompatActivity() {
     private fun searchFood(query: String, adapter: FoodAdapter, dataList: ArrayList<Food>) {
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://world.openfoodfacts.org/api/v2/search?categories_tags_en=$query&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url,code")
+            .url("https://world.openfoodfacts.org/api/v2/search?categories_tags=$query&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url,code,brands")
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
@@ -146,16 +147,17 @@ class firebaseDBSearch : AppCompatActivity() {
                     for (i in 0 until productsArray.length()) {
                         val productObject = productsArray.getJSONObject(i)
                         val foodItem = Food(
-                            name = if (productObject.has("product_name")) productObject.getString("product_name") else "",
-                            carbohydrates = if (productObject.has("carbohydrates_100g")) productObject.getDouble("carbohydrates_100g").toString() else "",
-                            calories = if (productObject.has("energy-kcal_100g")) productObject.getDouble("energy-kcal_100g").toString() else "",
-                            fat = if (productObject.has("fat_100g")) productObject.getDouble("fat_100g").toString() else "",
-                            protein = if (productObject.has("proteins_100g")) productObject.getDouble("proteins_100g").toString() else "",
+                            name = if (productObject.has("product_name")) productObject.getString("product_name") else "API missing data",
+                            carbohydrates = if (productObject.has("carbohydrates_100g")) productObject.getDouble("carbohydrates_100g").toString() else "API missing data",
+                            calories = if (productObject.has("energy-kcal_100g")) productObject.getDouble("energy-kcal_100g").toString() else "API missing data",
+                            fat = if (productObject.has("fat_100g")) productObject.getDouble("fat_100g").toString() else "API missing data",
+                            protein = if (productObject.has("proteins_100g")) productObject.getDouble("proteins_100g").toString() else "API missing data",
                             uri = if (productObject.has("image_url")) productObject.getString("image_url") else "",
                             weight = "100",
                             qty = "1",
                             favour = "",
-                            key = if (productObject.has("code")) productObject.getString("code") else ""
+                            key = if (productObject.has("code")) productObject.getString("code") else "",
+                            brands = if (productObject.has("brands")) productObject.getString("brands") else "API missing data"
                         )
                         dataList.add(foodItem)
                     }

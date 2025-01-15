@@ -117,7 +117,7 @@ class FindFoodView : AppCompatActivity() {
     private fun searchFood(query: String, adapter: FoodAdapter, dataList: ArrayList<Food>) {
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://world.openfoodfacts.org/api/v2/search?categories_tags_en=$query&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url,code")
+            .url("https://world.openfoodfacts.org/api/v2/search?categories_tags=$query&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url,code,brands")
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
@@ -146,7 +146,8 @@ class FindFoodView : AppCompatActivity() {
                             weight = "100",
                             qty = "1",
                             favour = "F",
-                            key = if (productObject.has("code")) productObject.getString("code") else ""
+                            key = if (productObject.has("code")) productObject.getString("code") else "API missing data",
+                            brands =  if (productObject.has("brands")) productObject.getString("brands") else "API missing data"
                         )
                         dataList.add(foodItem)
                     }

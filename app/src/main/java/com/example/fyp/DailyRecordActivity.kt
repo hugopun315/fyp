@@ -1,5 +1,6 @@
 package com.example.fyp
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -7,11 +8,14 @@ import android.widget.DatePicker
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.fyp.adapter.FoodAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
 class DailyRecordActivity : AppCompatActivity() {
@@ -33,7 +37,7 @@ class DailyRecordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_daily_record)
 
-        /*
+
         breakfastRecyclerView = findViewById(R.id.bList)
         lunchRecyclerView = findViewById(R.id.lList)
         dinnerRecyclerView = findViewById(R.id.dList)
@@ -65,9 +69,9 @@ class DailyRecordActivity : AppCompatActivity() {
             val month = datePicker.month + 1 // Month is 0-based
             val year = datePicker.year
             val selectedDate = String.format("%04d-%02d-%02d", year, month, day)
-            val breakfastAdapter = FoodAdapter(this, breakfastDataList, "breakfast", selectedDate, "R")
-            val lunchAdapter = FoodAdapter(this, lunchDataList, "lunch", selectedDate,"R")
-            val dinnerAdapter = FoodAdapter(this, dinnerDataList, "dinner", selectedDate,"R")
+            val breakfastAdapter = FoodAdapter(this, breakfastDataList, "breakfast", selectedDate, "remove")
+            val lunchAdapter = FoodAdapter(this, lunchDataList, "lunch", selectedDate,"remove")
+            val dinnerAdapter = FoodAdapter(this, dinnerDataList, "dinner", selectedDate,"remove")
 
             breakfastRecyclerView.adapter = breakfastAdapter
             lunchRecyclerView.adapter = lunchAdapter
@@ -160,7 +164,7 @@ class DailyRecordActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        */
+
     }
 
     private fun fetchUserCCT(databaseReference: DatabaseReference) {

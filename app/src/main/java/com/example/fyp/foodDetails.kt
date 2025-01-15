@@ -33,6 +33,7 @@ class foodDetails : AppCompatActivity() {
     private var time : String = ""
     private var date : String = ""
     private var value : String = ""
+    private var brands : String = ""
     private var auth= FirebaseAuth.getInstance()
     private lateinit var decreaseQty: Button
     private lateinit var increaseQty: Button
@@ -51,6 +52,7 @@ class foodDetails : AppCompatActivity() {
         val car: TextView = findViewById(R.id.carbohydrate)
         val pro: TextView = findViewById(R.id.protein)
         val fat: TextView = findViewById(R.id.fat)
+        val brand: TextView = findViewById(R.id.brands)
         decreaseQty = findViewById(R.id.decreaseQty)
         increaseQty = findViewById(R.id.increaseQty)
         quantityEditText = findViewById(R.id.quantity)
@@ -89,6 +91,12 @@ class foodDetails : AppCompatActivity() {
             time = bundle.getString("time") ?: ""
             date= bundle.getString("date") ?: ""
             value = bundle.getString("value") ?: ""
+            brands = bundle.getString("brands") ?: ""
+
+            if(brands != ""){
+                brand.text = "brand: "+brands
+            }
+
 
             if (value == "remove"){
                 addButton.text = "remove"
@@ -137,10 +145,11 @@ class foodDetails : AppCompatActivity() {
         val foodKey = key
         val date = date
         val time = time
+        val brands = brands
         val userID = FirebaseAuth.getInstance().currentUser?.uid
 
         // Create a Food object
-        val dataClass = Food(name, protein, carbohydrates, fat, weight, qty, favour, imageURL, cal.toString(), foodKey)
+        val dataClass = Food(name, protein, carbohydrates, fat, weight, qty, favour, imageURL, cal.toString(), foodKey, brands)
 
         Log.d("UploadData", "Data Class: $dataClass")
 

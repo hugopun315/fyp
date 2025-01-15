@@ -11,7 +11,8 @@ data class Food(
     val favour: String = "",
     val uri: String? = null,
     val calories: String = "",
-    var key: String? = null
+    var key: String? = null,
+    var brands : String = ""
 )
 
 data class User(
