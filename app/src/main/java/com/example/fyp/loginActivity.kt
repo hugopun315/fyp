@@ -10,6 +10,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 
+
 class loginActivity : AppCompatActivity() {
 
     private lateinit var emailEditText: EditText
@@ -24,7 +25,7 @@ class loginActivity : AppCompatActivity() {
         // Check if user is signed in (non-null) and update UI accordingly.
 
 
-
+/*
         val currentUser = auth.currentUser
         if (currentUser != null) {
             val intent = Intent(this,homeActivity::class.java)
@@ -32,6 +33,8 @@ class loginActivity : AppCompatActivity() {
             finish()
         }
 
+
+        */
 
 
 
@@ -75,7 +78,7 @@ class loginActivity : AppCompatActivity() {
                             "Login Success",
                             Toast.LENGTH_SHORT,
                         ).show()
-                        val intent = Intent(this,homeActivity::class.java)
+                        val intent = Intent(this,firebaseDBSearch::class.java)
                         startActivity(intent)
                         finish()
                     } else {

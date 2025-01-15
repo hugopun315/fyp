@@ -1,6 +1,5 @@
 package com.example.fyp
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -8,7 +7,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fyp.adapter.FoodAdapter
 import com.google.firebase.auth.FirebaseAuth
@@ -34,6 +32,8 @@ class FindFoodView : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_find_food_view)
+
+        /*
         foodRecyclerView = findViewById(R.id.foodList)
         homeButton1 = findViewById(R.id.imageViewHome)
         homeButton2 = findViewById(R.id.textViewHome)
@@ -100,6 +100,8 @@ class FindFoodView : AppCompatActivity() {
             val intent = Intent(this, uploadFood::class.java)
             startActivity(intent)
         }
+
+        */
     }
 
     private fun searchFood(query: String, adapter: FoodAdapter, dataList: ArrayList<Food>) {

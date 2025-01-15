@@ -34,3 +34,13 @@ data class FoodItem(
 
 
 )
+
+
+data class FoodTesting(
+    val product_name: String,
+    val carbohydrates_100g: Double,
+    val energy_kcal_100g: Double,
+    val fat_100g: Double,
+    val proteins_100g: Double,
+    val image_url: String
+)

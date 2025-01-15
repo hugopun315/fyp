@@ -9,14 +9,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.fyp.adapter.FoodAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -43,6 +40,8 @@ class homeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_home)
+
+        /*
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
         val todayDate = getCurrentDate()
@@ -146,7 +145,7 @@ class homeActivity : AppCompatActivity() {
             }
         }
         dinnerDatabaseReference.addValueEventListener(dinnerEventListener) // Add the listener to the reference
-
+       */
         // Set up click listeners for buttons
         searchButtonS1.setOnClickListener {
             val intent = Intent(this, firebaseDBSearch::class.java)
@@ -187,6 +186,8 @@ class homeActivity : AppCompatActivity() {
             }
             context.startActivity(intent)
         }
+
+
     }
 
     private fun fetchUserTDEE(databaseReference: DatabaseReference) {

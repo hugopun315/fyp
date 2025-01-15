@@ -77,6 +77,6 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.14.2")
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2") // Use kapt for annotation processing
     implementation("com.github.clans:fab:1.6.4")
-
+    implementation ("com.squareup.okhttp3:okhttp:4.9.3")
 
 }

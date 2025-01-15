@@ -1,6 +1,5 @@
 package com.example.fyp
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -8,14 +7,11 @@ import android.widget.DatePicker
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.fyp.adapter.FoodAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
 class DailyRecordActivity : AppCompatActivity() {
@@ -36,6 +32,8 @@ class DailyRecordActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_daily_record)
+
+        /*
         breakfastRecyclerView = findViewById(R.id.bList)
         lunchRecyclerView = findViewById(R.id.lList)
         dinnerRecyclerView = findViewById(R.id.dList)
@@ -161,6 +159,8 @@ class DailyRecordActivity : AppCompatActivity() {
             val intent = Intent(this, homeActivity::class.java)
             startActivity(intent)
         }
+
+        */
     }
 
     private fun fetchUserCCT(databaseReference: DatabaseReference) {
