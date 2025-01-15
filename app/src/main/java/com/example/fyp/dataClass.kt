@@ -36,7 +36,7 @@ data class FoodItem(
 )
 
 
-data class FoodTesting(
+data class FoodAPI(
     val product_name: String,
     val carbohydrates_100g: Double,
     val energy_kcal_100g: Double,

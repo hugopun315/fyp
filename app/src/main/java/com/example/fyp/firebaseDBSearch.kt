@@ -45,8 +45,8 @@ class firebaseDBSearch : AppCompatActivity() {
         val time = bundle?.getString("time") ?: ""
 
         foodRecyclerView.layoutManager = LinearLayoutManager(this)
-        val dataList = ArrayList<FoodTesting>()
-        val adapter = FoodAdapter(this, dataList, time, todayDate, "A")
+        val dataList = ArrayList<Food>()
+        val adapter = FoodAdapter(this, dataList, time, todayDate, "search")
         foodRecyclerView.adapter = adapter
 
         fetchFoodData(adapter, dataList)
@@ -79,10 +79,10 @@ class firebaseDBSearch : AppCompatActivity() {
 
     }
 
-    private fun fetchFoodData(adapter: FoodAdapter, dataList: ArrayList<FoodTesting>) {
+    private fun fetchFoodData(adapter: FoodAdapter, dataList: ArrayList<Food>) {
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://world.openfoodfacts.org/api/v2/search?code=3474341105842&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url")
+            .url("https://world.openfoodfacts.org/api/v2/search?categories_tags_en=chicken%20breast&energy-kj_100g%3C500&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url,code")
             .build()
 
         client.newCall(request).enqueue(object : okhttp3.Callback {
@@ -100,13 +100,17 @@ class firebaseDBSearch : AppCompatActivity() {
 
                     for (i in 0 until productsArray.length()) {
                         val productObject = productsArray.getJSONObject(i)
-                        val foodItem = FoodTesting(
-                            product_name = productObject.getString("product_name"),
-                            carbohydrates_100g = productObject.getDouble("carbohydrates_100g"),
-                            energy_kcal_100g = productObject.getDouble("energy-kcal_100g"),
-                            fat_100g = productObject.getDouble("fat_100g"),
-                            proteins_100g = productObject.getDouble("proteins_100g"),
-                            image_url = productObject.getString("image_url")
+                        val foodItem = Food(
+                            name = if (productObject.has("product_name")) productObject.getString("product_name") else "",
+                            carbohydrates = if (productObject.has("carbohydrates_100g")) productObject.getDouble("carbohydrates_100g").toString() else "",
+                            calories = if (productObject.has("energy-kcal_100g")) productObject.getDouble("energy-kcal_100g").toString() else "",
+                            fat = if (productObject.has("fat_100g")) productObject.getDouble("fat_100g").toString() else "",
+                            protein = if (productObject.has("proteins_100g")) productObject.getDouble("proteins_100g").toString() else "",
+                            uri = if (productObject.has("image_url")) productObject.getString("image_url") else "",
+                            weight = "100",
+                            qty = "1",
+                            favour = "",
+                            key = if (productObject.has("code")) productObject.getString("code") else ""
                         )
                         dataList.add(foodItem)
                     }
@@ -119,8 +123,49 @@ class firebaseDBSearch : AppCompatActivity() {
         })
     }
 
-    private fun searchFood(query: String, adapter: FoodAdapter, dataList: ArrayList<FoodTesting>) {
-        // Implement search functionality if needed
+    private fun searchFood(query: String, adapter: FoodAdapter, dataList: ArrayList<Food>) {
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url("https://world.openfoodfacts.org/api/v2/search?categories_tags_en=$query&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url,code")
+            .build()
+
+        client.newCall(request).enqueue(object : okhttp3.Callback {
+            override fun onFailure(call: okhttp3.Call, e: IOException) {
+                e.printStackTrace()
+            }
+
+            override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                response.use {
+                    if (!response.isSuccessful) throw IOException("Unexpected code $response")
+
+                    val responseData = response.body?.string()
+                    val jsonObject = JSONObject(responseData)
+                    val productsArray = jsonObject.getJSONArray("products")
+
+                    dataList.clear()
+                    for (i in 0 until productsArray.length()) {
+                        val productObject = productsArray.getJSONObject(i)
+                        val foodItem = Food(
+                            name = if (productObject.has("product_name")) productObject.getString("product_name") else "",
+                            carbohydrates = if (productObject.has("carbohydrates_100g")) productObject.getDouble("carbohydrates_100g").toString() else "",
+                            calories = if (productObject.has("energy-kcal_100g")) productObject.getDouble("energy-kcal_100g").toString() else "",
+                            fat = if (productObject.has("fat_100g")) productObject.getDouble("fat_100g").toString() else "",
+                            protein = if (productObject.has("proteins_100g")) productObject.getDouble("proteins_100g").toString() else "",
+                            uri = if (productObject.has("image_url")) productObject.getString("image_url") else "",
+                            weight = "100",
+                            qty = "1",
+                            favour = "",
+                            key = if (productObject.has("code")) productObject.getString("code") else ""
+                        )
+                        dataList.add(foodItem)
+                    }
+
+                    runOnUiThread {
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+            }
+        })
     }
 
     fun getCurrentDate(): String {

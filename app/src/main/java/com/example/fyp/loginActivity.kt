@@ -25,7 +25,7 @@ class loginActivity : AppCompatActivity() {
         // Check if user is signed in (non-null) and update UI accordingly.
 
 
-/*
+
         val currentUser = auth.currentUser
         if (currentUser != null) {
             val intent = Intent(this,homeActivity::class.java)
@@ -33,8 +33,6 @@ class loginActivity : AppCompatActivity() {
             finish()
         }
 
-
-        */
 
 
 
@@ -54,14 +52,6 @@ class loginActivity : AppCompatActivity() {
         createAccountTextView = findViewById(R.id.createAccount)
         errorText = findViewById(R.id.error)
 
-        /*
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.login)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        */
 
 
         loginButton = findViewById(R.id.btnLogin)
@@ -78,7 +68,7 @@ class loginActivity : AppCompatActivity() {
                             "Login Success",
                             Toast.LENGTH_SHORT,
                         ).show()
-                        val intent = Intent(this,firebaseDBSearch::class.java)
+                        val intent = Intent(this,homeActivity::class.java)
                         startActivity(intent)
                         finish()
                     } else {

@@ -9,11 +9,14 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.fyp.adapter.FoodAdapter
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -41,7 +44,7 @@ class homeActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_home)
 
-        /*
+
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
         val todayDate = getCurrentDate()
@@ -75,12 +78,12 @@ class homeActivity : AppCompatActivity() {
 
         val breakfastDataList = ArrayList<Food>()
         val lunchDataList = ArrayList<Food>()
-        val breakfastAdapter = FoodAdapter(this, breakfastDataList, "breakfast", todayDate , "R")
-        val lunchAdapter = FoodAdapter(this, lunchDataList, "lunch", todayDate, "R")
+        val breakfastAdapter = FoodAdapter(this, breakfastDataList, "breakfast", todayDate , "remove")
+        val lunchAdapter = FoodAdapter(this, lunchDataList, "lunch", todayDate, "remove")
         breakfastRecyclerView.adapter = breakfastAdapter
         lunchRecyclerView.adapter = lunchAdapter
         val dinnerDataList = ArrayList<Food>()
-        val dinnerAdapter = FoodAdapter(this, dinnerDataList, "dinner",todayDate, "R")
+        val dinnerAdapter = FoodAdapter(this, dinnerDataList, "dinner",todayDate, "remove")
         dinnerRecyclerView.adapter = dinnerAdapter
 
         // Fetch breakfast food items
@@ -145,7 +148,7 @@ class homeActivity : AppCompatActivity() {
             }
         }
         dinnerDatabaseReference.addValueEventListener(dinnerEventListener) // Add the listener to the reference
-       */
+
         // Set up click listeners for buttons
         searchButtonS1.setOnClickListener {
             val intent = Intent(this, firebaseDBSearch::class.java)

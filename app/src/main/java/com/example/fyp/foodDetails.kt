@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -16,9 +17,6 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 
 
 class foodDetails : AppCompatActivity() {
@@ -92,10 +90,12 @@ class foodDetails : AppCompatActivity() {
             date= bundle.getString("date") ?: ""
             value = bundle.getString("value") ?: ""
 
-            if (value == "R"){
+            if (value == "remove"){
                 addButton.text = "remove"
+            }else if(value == "search"){
+                addButton.visibility = View.INVISIBLE
             }
-
+            // A for already
             // Load the image only if imageUrl is not empty
             if (imageUrl.isNotEmpty()) {
                 Glide.with(this).load(imageUrl).into(image)
@@ -132,7 +132,7 @@ class foodDetails : AppCompatActivity() {
         val weight = foodWeight
         val qty = qty
         val favour = "false"
-        val cal = foodCal.toIntOrNull() ?: 0
+        val cal = foodCal
         val imageURL = imageUrl
         val foodKey = key
         val date = date
@@ -217,12 +217,12 @@ class foodDetails : AppCompatActivity() {
 
         mealsRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                var totalCalories = 0
+                var totalCalories = 0.0
 
                 for (mealSnapshot in dataSnapshot.children) {
                     if (mealSnapshot.key != "record") {
                         for (foodSnapshot in mealSnapshot.child("Food").children) {
-                            val calories = foodSnapshot.child("calories").getValue(String::class.java)?.toIntOrNull() ?: 0
+                            val calories = foodSnapshot.child("calories").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
                             totalCalories += calories
                         }
                     }
@@ -243,9 +243,5 @@ class foodDetails : AppCompatActivity() {
         context.startActivity(intent)
     }
 
-    private fun getCurrentDate(): String {
-        val calendar = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return dateFormat.format(calendar.time)
-    }
+
 }
