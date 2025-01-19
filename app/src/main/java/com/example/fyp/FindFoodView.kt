@@ -1,5 +1,6 @@
 package com.example.fyp
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -28,6 +29,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
+
 class FindFoodView : AppCompatActivity() {
     private lateinit var foodRecyclerView: RecyclerView
     private lateinit var auth: FirebaseAuth
@@ -42,7 +44,10 @@ class FindFoodView : AppCompatActivity() {
     private lateinit var scannbutton: Button
     private val camerPermission = android.Manifest.permission.CAMERA
     private lateinit var binding: ActivityFindFoodViewBinding
-private var okok : String = ""
+    private var productID: String = ""
+    private var barcodeFood: Food? = null
+    private var context: Context = this
+
     private val requestPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
@@ -56,7 +61,9 @@ private var okok : String = ""
         super.onCreate(savedInstanceState)
         binding = ActivityFindFoodViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        val todayDate = getCurrentDate()
+        val bundle = intent.extras
+        val time = bundle?.getString("time") ?: ""
         Log.d("FindFoodView", "Binding initialized")
 
         binding.scanBarcode.setOnClickListener {
@@ -72,9 +79,9 @@ private var okok : String = ""
         searchBar = findViewById(R.id.search_bar)
         addOwnFood = findViewById(R.id.addOwnFood)
         scannbutton = findViewById(R.id.scanBarcode)
-        val todayDate = getCurrentDate()
-        val bundle = intent.extras
-        val time = bundle?.getString("time") ?: ""
+
+
+
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
 
@@ -87,10 +94,14 @@ private var okok : String = ""
         loadFirebaseData(adapter, dataList)
 
         searchButton.setOnClickListener {
+
+
             val query = searchBar.text.toString().trim()
             if (query.isNotEmpty()) {
                 searchFood(query, adapter, dataList)
             }
+
+
         }
 
         homeButton1.setOnClickListener {
@@ -134,40 +145,51 @@ private var okok : String = ""
                 when (barcode.valueType) {
                     Barcode.TYPE_CONTACT_INFO -> {
                         barcode.contactInfo?.let {
-                            okok = it.toString()
-                            Log.d("FindFoodView", "Contact Info: $okok")
+
+                            Log.d("FindFoodView", "Contact Info: $productID")
                             runOnUiThread {
                                 if (!isFinishing) {
                                     Log.d("FindFoodView", "Showing Toast on main thread")
-                                    Toast.makeText(this, okok, Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this, productID, Toast.LENGTH_SHORT).show()
                                 }
                             }
                         } ?: Log.d("FindFoodView", "Contact Info is null")
                     }
+
                     Barcode.TYPE_TEXT -> {
-                        okok = barcode.displayValue ?: "No text found"
-                        Log.d("FindFoodView", "Text: $okok")
+                        productID = barcode.displayValue ?: ""
+                        Log.d("FindFoodView", "Text: $productID")
                         runOnUiThread {
                             if (!isFinishing) {
                                 Log.d("FindFoodView", "Showing Toast on main thread")
-                                Toast.makeText(this, okok, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, productID, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
+
                     else -> {
-                        okok = barcode.displayValue ?: "No value found"
-                        Log.d("FindFoodView", "Other barcode type scanned with value: $okok")
+                        productID = barcode.displayValue ?: ""
+                        Log.d("FindFoodView", "Other barcode type scanned with value: $productID")
                         runOnUiThread {
                             if (!isFinishing) {
                                 Log.d("FindFoodView", "Showing Toast on main thread")
-                                Toast.makeText(this, okok, Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, productID, Toast.LENGTH_SHORT).show()
                             }
                         }
                     }
+
+
+                }
+
+
+                if (productID!="") {
+                    val bundle = intent.extras
+                    searchByProductID(bundle?.getString("time") ?: "", getCurrentDate(), "A")
                 }
             }
         }
     }
+
     private fun requestCameraPermission() {
         when {
             shouldShowRequestPermissionRationale(camerPermission) -> {
@@ -203,6 +225,78 @@ private var okok : String = ""
         databaseReference.addValueEventListener(eventListener)
     }
 
+
+    private fun  searchByProductID(time: String, date: String, value: String){
+        if (productID.isNotEmpty()) {
+            val client = OkHttpClient()
+            val request = Request.Builder()
+                .url("https://world.openfoodfacts.net/api/v2/product/$productID&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url")
+                .build()
+
+            client.newCall(request).enqueue(object : okhttp3.Callback {
+                override fun onFailure(call: okhttp3.Call, e: IOException) {
+                    e.printStackTrace()
+                }
+
+                override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+                    response.use {
+                        if (!response.isSuccessful) throw IOException("Unexpected code $response")
+
+                        val responseData = response.body?.string()
+                        val jsonObject = JSONObject(responseData)
+                        val productObject = jsonObject.getJSONObject("product")
+
+                        val foodItem = Food(
+                            name = if (productObject.has("product_name")) productObject.getString(
+                                "product_name"
+                            ) else "API miss name",
+                            carbohydrates = if (productObject.has("carbohydrates_100g")) productObject.getDouble(
+                                "carbohydrates_100g"
+                            ).toString() else "API miss carbohydrates data",
+                            calories = if (productObject.has("energy-kcal_100g")) productObject.getDouble(
+                                "energy-kcal_100g"
+                            ).toString() else "API miss kcals data",
+                            fat = if (productObject.has("fat_100g")) productObject.getDouble(
+                                "fat_100g"
+                            ).toString() else "API miss fats data",
+                            protein = if (productObject.has("proteins_100g")) productObject.getDouble(
+                                "proteins_100g"
+                            ).toString() else "API miss proteins data",
+                            uri = if (productObject.has("image_url")) productObject.getString(
+                                "image_url"
+                            ) else "",
+                            weight = "100",
+                            qty = "1",
+                            favour = "F",
+                            key = if (jsonObject.has("code")) jsonObject.getString("code") else "API missing data",
+                            brands = if (productObject.has("brands")) productObject.getString(
+                                "brands"
+                            ) else "API missing data"
+                        )
+                        barcodeFood = foodItem
+
+                        // Start the foodDetails activity with the product details
+                        val intent = Intent(context, foodDetails::class.java).apply {
+                            putExtra("image", barcodeFood?.uri)
+                            putExtra("title", barcodeFood?.name)
+                            putExtra("car", barcodeFood?.carbohydrates.toString())
+                            putExtra("pro", barcodeFood?.protein.toString())
+                            putExtra("fat", barcodeFood?.fat.toString())
+                            putExtra("cal", barcodeFood?.calories.toString())
+                            putExtra("weight", barcodeFood?.weight.toString())
+                            putExtra("time", time) // Pass the time extra
+                            putExtra("date", date)
+                            putExtra("key", barcodeFood?.key)
+                            putExtra("brands", barcodeFood?.brands)
+                            putExtra("value", value)
+                        }
+                        context.startActivity(intent)
+                    }
+                }
+            })
+        }
+
+    }
     private fun searchFood(query: String, adapter: FoodAdapter, dataList: ArrayList<Food>) {
         val client = OkHttpClient()
         val request = Request.Builder()
