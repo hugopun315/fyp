@@ -7,10 +7,12 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fyp.adapter.FoodAdapter
+import com.example.fyp.databinding.ActivityFindFoodViewBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -35,10 +37,25 @@ class FindFoodView : AppCompatActivity() {
     private lateinit var searchButton: Button
     private lateinit var searchBar: EditText
     private lateinit var addOwnFood: Button
+    private lateinit var  scannbutton: Button
+    private val camerPermission = android.Manifest.permission.CAMERA
+    private lateinit var binding : ActivityFindFoodViewBinding
 
+    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()){ isGranted ->
+        if(isGranted){
+            // start scanner
+          startScanner()
+        }
+
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_find_food_view)
+        binding = ActivityFindFoodViewBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        binding.scanBarcode.setOnClickListener {
+
+            requestCameraAndStartScanner()
+        }
 
         foodRecyclerView = findViewById(R.id.foodList)
         homeButton1 = findViewById(R.id.imageViewHome)
@@ -48,6 +65,7 @@ class FindFoodView : AppCompatActivity() {
         searchButton = findViewById(R.id.search_button)
         searchBar = findViewById(R.id.search_bar)
         addOwnFood = findViewById(R.id.addOwnFood)
+        scannbutton = findViewById(R.id.scanBarcode)
         val todayDate = getCurrentDate()
         val bundle = intent.extras
         val time = bundle?.getString("time") ?: ""
@@ -90,6 +108,35 @@ class FindFoodView : AppCompatActivity() {
         addOwnFood.setOnClickListener {
             val intent = Intent(this, uploadFood::class.java)
             startActivity(intent)
+        }
+    }
+
+    private fun requestCameraAndStartScanner(){
+        if(isPermissionGranted(camerPermission)){
+            //start scanner
+            startScanner()
+
+        }else {
+            requestCameraPermission()
+        }
+    }
+
+    private fun startScanner(){
+        ScannerActivity.startScanner(this){
+
+        }
+    }
+
+    private fun requestCameraPermission(){
+        when{
+            shouldShowRequestPermissionRationale(camerPermission)->{
+                cameraPermissionRequest {
+                    openPermissionSetting()
+                }
+            }
+            else ->{
+                requestPermissionLauncher.launch(camerPermission)
+            }
         }
     }
 

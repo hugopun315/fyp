@@ -48,6 +48,10 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    buildFeatures{
+        viewBinding = true
+    }
+
 }
 
 dependencies {
@@ -78,5 +82,8 @@ dependencies {
     annotationProcessor("com.github.bumptech.glide:compiler:4.14.2") // Use kapt for annotation processing
     implementation("com.github.clans:fab:1.6.4")
     implementation ("com.squareup.okhttp3:okhttp:4.9.3")
-
+    implementation ("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation ("androidx.camera:camera-camera2:1.2.1")
+    implementation ("androidx.camera:camera-lifecycle:1.2.1")
+    implementation ("androidx.camera:camera-view:1.2.1")
 }

@@ -62,6 +62,14 @@
                 android:text="Add Own Food"
                 android:layout_marginTop="20dp"
                 android:layout_margin="8dp"/>
+
+            <Button
+                android:id="@+id/scanBarcode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Scan the bar code"
+                android:layout_marginTop="20dp"
+                android:layout_margin="8dp"/>
         </LinearLayout>
     </ScrollView>
 
