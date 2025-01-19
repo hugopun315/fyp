@@ -7,6 +7,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,6 +19,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.google.mlkit.vision.barcode.common.Barcode
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
@@ -37,23 +39,27 @@ class FindFoodView : AppCompatActivity() {
     private lateinit var searchButton: Button
     private lateinit var searchBar: EditText
     private lateinit var addOwnFood: Button
-    private lateinit var  scannbutton: Button
+    private lateinit var scannbutton: Button
     private val camerPermission = android.Manifest.permission.CAMERA
-    private lateinit var binding : ActivityFindFoodViewBinding
+    private lateinit var binding: ActivityFindFoodViewBinding
+private var okok : String = ""
+    private val requestPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            if (isGranted) {
+                // start scanner
+                startScanner()
+            }
 
-    private val requestPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()){ isGranted ->
-        if(isGranted){
-            // start scanner
-          startScanner()
         }
 
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityFindFoodViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        binding.scanBarcode.setOnClickListener {
 
+        Log.d("FindFoodView", "Binding initialized")
+
+        binding.scanBarcode.setOnClickListener {
             requestCameraAndStartScanner()
         }
 
@@ -111,30 +117,66 @@ class FindFoodView : AppCompatActivity() {
         }
     }
 
-    private fun requestCameraAndStartScanner(){
-        if(isPermissionGranted(camerPermission)){
-            //start scanner
+    private fun requestCameraAndStartScanner() {
+        if (isPermissionGranted(camerPermission)) {
+            Log.d("FindFoodView", "Camera permission granted")
             startScanner()
-
-        }else {
+        } else {
+            Log.d("FindFoodView", "Camera permission not granted")
             requestCameraPermission()
         }
     }
 
-    private fun startScanner(){
-        ScannerActivity.startScanner(this){
-
+    private fun startScanner() {
+        ScannerActivity.startScanner(this) { barcodes ->
+            barcodes.forEach { barcode ->
+                Log.d("FindFoodView", "Barcode Value Type: ${barcode.valueType}")
+                when (barcode.valueType) {
+                    Barcode.TYPE_CONTACT_INFO -> {
+                        barcode.contactInfo?.let {
+                            okok = it.toString()
+                            Log.d("FindFoodView", "Contact Info: $okok")
+                            runOnUiThread {
+                                if (!isFinishing) {
+                                    Log.d("FindFoodView", "Showing Toast on main thread")
+                                    Toast.makeText(this, okok, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        } ?: Log.d("FindFoodView", "Contact Info is null")
+                    }
+                    Barcode.TYPE_TEXT -> {
+                        okok = barcode.displayValue ?: "No text found"
+                        Log.d("FindFoodView", "Text: $okok")
+                        runOnUiThread {
+                            if (!isFinishing) {
+                                Log.d("FindFoodView", "Showing Toast on main thread")
+                                Toast.makeText(this, okok, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    else -> {
+                        okok = barcode.displayValue ?: "No value found"
+                        Log.d("FindFoodView", "Other barcode type scanned with value: $okok")
+                        runOnUiThread {
+                            if (!isFinishing) {
+                                Log.d("FindFoodView", "Showing Toast on main thread")
+                                Toast.makeText(this, okok, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
-
-    private fun requestCameraPermission(){
-        when{
-            shouldShowRequestPermissionRationale(camerPermission)->{
+    private fun requestCameraPermission() {
+        when {
+            shouldShowRequestPermissionRationale(camerPermission) -> {
                 cameraPermissionRequest {
                     openPermissionSetting()
                 }
             }
-            else ->{
+
+            else -> {
                 requestPermissionLauncher.launch(camerPermission)
             }
         }
@@ -185,16 +227,23 @@ class FindFoodView : AppCompatActivity() {
                         val productObject = productsArray.getJSONObject(i)
                         val foodItem = Food(
                             name = if (productObject.has("product_name")) productObject.getString("product_name") else "API miss name",
-                            carbohydrates = if (productObject.has("carbohydrates_100g")) productObject.getDouble("carbohydrates_100g").toString() else "API miss carbohydrates data",
-                            calories = if (productObject.has("energy-kcal_100g")) productObject.getDouble("energy-kcal_100g").toString() else "API miss kcals data",
-                            fat = if (productObject.has("fat_100g")) productObject.getDouble("fat_100g").toString() else "API miss fats data",
-                            protein = if (productObject.has("proteins_100g")) productObject.getDouble("proteins_100g").toString() else "API miss proteins data",
+                            carbohydrates = if (productObject.has("carbohydrates_100g")) productObject.getDouble(
+                                "carbohydrates_100g"
+                            ).toString() else "API miss carbohydrates data",
+                            calories = if (productObject.has("energy-kcal_100g")) productObject.getDouble(
+                                "energy-kcal_100g"
+                            ).toString() else "API miss kcals data",
+                            fat = if (productObject.has("fat_100g")) productObject.getDouble("fat_100g")
+                                .toString() else "API miss fats data",
+                            protein = if (productObject.has("proteins_100g")) productObject.getDouble(
+                                "proteins_100g"
+                            ).toString() else "API miss proteins data",
                             uri = if (productObject.has("image_url")) productObject.getString("image_url") else "",
                             weight = "100",
                             qty = "1",
                             favour = "F",
                             key = if (productObject.has("code")) productObject.getString("code") else "API missing data",
-                            brands =  if (productObject.has("brands")) productObject.getString("brands") else "API missing data"
+                            brands = if (productObject.has("brands")) productObject.getString("brands") else "API missing data"
                         )
                         dataList.add(foodItem)
                     }
