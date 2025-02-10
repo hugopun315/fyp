@@ -1,5 +1,82 @@
 package com.example.fyp
+import android.util.Log
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.Headers
+import retrofit2.http.POST
 
+
+
+
+
+
+
+interface ChatService {
+    @Headers("Content-Type: application/json", "api-key: c23867c4-235b-45d0-9557-ce8734e93d8c")
+    @POST("deployments/gpt-4-o-mini/chat/completions/?api-version=2024-05-01-preview")
+    @JvmSuppressWildcards
+    fun sendMessage(@Body payload: Map<String, List<Message>>): Call<Map<String, Any>>
+}
+class ChatViewModel : ViewModel() {
+
+    private val chatService: ChatService
+
+    init {
+        val moshi = Moshi.Builder().add(KotlinJsonAdapterFactory()).build()
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://genai.hkbu.edu.hk/general/rest/")
+            .addConverterFactory(MoshiConverterFactory.create(moshi))
+            .build()
+
+        chatService = retrofit.create(ChatService::class.java)
+    }
+
+    val messages = MutableLiveData<MutableList<Message>>().apply { value = mutableListOf() }
+
+    fun sendMessage(content: String) {
+        Log.d("ChatViewModel", "sendMessage called with content: $content")
+        val message = Message("user", content)
+        val payload = mapOf("messages" to listOf(message))
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = chatService.sendMessage(payload).execute()
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    Log.d("ChatViewModel", "Response body: $responseBody")
+                    if (responseBody != null) {
+                        val choices = responseBody["choices"] as? List<Map<String, Any>>
+                        val firstChoice = choices?.firstOrNull()
+                        val messageContent = (firstChoice?.get("message") as? Map<String, Any>)?.get("content") as? String
+                        if (messageContent != null) {
+                            val newMessage = Message("bot", messageContent)
+                            val updatedMessages = messages.value ?: mutableListOf()
+                            updatedMessages.add(newMessage)
+                            messages.postValue(updatedMessages)
+                            Log.d("ChatViewModel", "Message sent successfully: $newMessage")
+                        } else {
+                            Log.e("ChatViewModel", "Message content is null")
+                        }
+                    } else {
+                        Log.e("ChatViewModel", "Response body is null")
+                    }
+                } else {
+                    Log.e("ChatViewModel", "Error sending message: ${response.errorBody()?.string()}")
+                }
+            } catch (e: Exception) {
+                Log.e("ChatViewModel", "Exception sending message", e)
+            }
+        }
+    }
+}
 
 data class Food(
     val name: String = "",
@@ -44,4 +121,10 @@ data class FoodAPI(
     val fat_100g: Double,
     val proteins_100g: Double,
     val image_url: String
+)
+
+
+data class Message(
+    val role: String,
+    val content: String
 )

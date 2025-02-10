@@ -151,11 +151,11 @@ class homeActivity : AppCompatActivity() {
 
         // Set up click listeners for buttons
         searchButtonS1.setOnClickListener {
-            val intent = Intent(this, firebaseDBSearch::class.java)
+            val intent = Intent(this, chatGPTAPI::class.java)
             startActivity(intent)
         }
         searchButtonS2.setOnClickListener {
-            val intent = Intent(this, firebaseDBSearch::class.java)
+            val intent = Intent(this, chatGPTAPI::class.java)
             startActivity(intent)
         }
         profileButtonP1.setOnClickListener {
