@@ -10,7 +10,7 @@ import com.example.fyp.adapter.MessageAdapter
 import com.example.fyp.databinding.ActivityChatGptapiBinding
 
 class chatGPTAPI : AppCompatActivity() {
-
+    val profile = UserProfileManager.myProfile
     private lateinit var binding: ActivityChatGptapiBinding
     private val viewModel: ChatViewModel by viewModels()
 
@@ -36,6 +36,11 @@ class chatGPTAPI : AppCompatActivity() {
                 viewModel.sendMessage(message)
                 binding.messageInput.text.clear()
             }
+        }
+
+        binding.presetButton1.setOnClickListener {
+            viewModel.sendMessage("Here is my body data: Weight: ${profile?.weight}, Height: ${profile?.height}, Exercise habit: ${profile?.habit}, Sex: ${profile?.sex}, Target: ${profile?.target}, targetCalories: ${profile?.targetCalories}.Reply in short, Help me to design 3 meals today")
+            binding.messageInput.text.clear()
         }
     }
 }

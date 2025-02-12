@@ -106,7 +106,7 @@ class createAccount : AppCompatActivity() {
 
             var email = emailEditText.text.toString()
             var password = passwordEditText.text.toString()
-            var hight = hightlEditText.text.toString()
+            var height = hightlEditText.text.toString()
             var weight = weightEditText.text.toString()
             var age = ageEditText.text.toString()
             var sex = selectedSex
@@ -122,9 +122,9 @@ class createAccount : AppCompatActivity() {
                         ).show()
                         var BMR =0.0
                         if(sex == "Male"){
-                            BMR = (weight.toDoubleOrNull()!! * 10 + 6.25 * hight.toDoubleOrNull()!! - 5* age.toDoubleOrNull()!! +5)
+                            BMR = (weight.toDoubleOrNull()!! * 10 + 6.25 * height.toDoubleOrNull()!! - 5* age.toDoubleOrNull()!! +5)
                         }else {
-                            BMR = (weight.toDoubleOrNull()!! * 10 + 6.25 * hight.toDoubleOrNull()!! - 5* age.toDoubleOrNull()!! -161)
+                            BMR = (weight.toDoubleOrNull()!! * 10 + 6.25 * height.toDoubleOrNull()!! - 5* age.toDoubleOrNull()!! -161)
                         }
                         var TDEE = 0.0
                         when (selectedHabit){
@@ -134,15 +134,15 @@ class createAccount : AppCompatActivity() {
                             "Heavy Exercise" -> TDEE =BMR * 1.8
                             "Very Heavy Exercise" -> TDEE =BMR * 2.0
                         }
-
+                        var targetCalories = 0.0
                         when (selectedTarget){
-                            "Lose Weight"-> TDEE *= 0.75
-                            "Gain Weight" -> TDEE *= 1.1
-                            "Maintain Weight" -> TDEE
+                            "Lose Weight"-> targetCalories = TDEE * 0.75
+                            "Gain Weight" ->  targetCalories = TDEE * 1.1
+                            "Maintain Weight" -> targetCalories =TDEE
                         }
 
 
-                        val user = User(auth.currentUser?.uid.toString(), email, hight, weight, age, sex.toString(), habit.toString(), target.toString(), "", TDEE)
+                        val user = User(auth.currentUser?.uid.toString(), email, height, weight, age, sex.toString(), habit.toString(), target.toString(), "", TDEE , targetCalories)
                        uploadData(user)
                         val intent = Intent(this, homeActivity::class.java)
                         startActivity(intent)

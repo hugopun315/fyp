@@ -37,7 +37,11 @@ class homeActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var TDEEView: TextView
     private lateinit var CCTView: TextView
+    private lateinit var CPView: TextView
+    private lateinit var CFView: TextView
+    private lateinit var CCView: TextView
     private lateinit var databaseReference: DatabaseReference
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,6 +61,20 @@ class homeActivity : AppCompatActivity() {
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("record")
         fetchUserCCT(databaseReference)
 
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("protein")
+        fetchUserCProtein(databaseReference)
+
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("fat")
+        fetchUserCFat(databaseReference)
+
+
+     databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("carbohydrates")
+     fetchUserCCarbohydrates(databaseReference)
+
+
+
         // Initialize RecyclerViews
         breakfastRecyclerView = findViewById(R.id.bList)
         lunchRecyclerView = findViewById(R.id.lList)
@@ -70,6 +88,9 @@ class homeActivity : AppCompatActivity() {
         dinnerButton = findViewById(R.id.dButton)
         TDEEView = findViewById(R.id.TDEE)
         CCTView = findViewById(R.id.CCT)
+        CPView = findViewById(R.id.CProtein)
+        CFView = findViewById(R.id.CFat)
+        CCView = findViewById(R.id.CCarbohydrates)
 
         // Set Layout Managers
         breakfastRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -196,9 +217,13 @@ class homeActivity : AppCompatActivity() {
     private fun fetchUserTDEE(databaseReference: DatabaseReference) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val userProfile = dataSnapshot.getValue(UserProfile::class.java)
+                val userProfile = dataSnapshot.getValue(User::class.java)
+
                 userProfile?.let {
-                    TDEEView.text = "Your Total Daily Energy Expenditure : " + it.tdee.toString() + " kals "
+
+                    UserProfileManager.myProfile  = userProfile
+                    val profile = UserProfileManager.myProfile
+                    TDEEView.text = "Your Total Daily Energy Expenditure : " + profile?.tdee.toString() + " kals "
                 }
             }
 
@@ -213,7 +238,7 @@ class homeActivity : AppCompatActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val record = dataSnapshot.getValue(String::class.java)
                 record?.let {
-                    CCTView.text = "Calories Consumed today : $it kals"
+                    CCTView.text = "Calories Consumed today : $it kals "
                 }
             }
 
@@ -223,6 +248,52 @@ class homeActivity : AppCompatActivity() {
         })
     }
 
+    private fun fetchUserCProtein(databaseReference: DatabaseReference) {
+        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val protein = dataSnapshot.getValue(String::class.java)
+                protein?.let {
+                    CPView.text = "Protein Consumed today : $it g "
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e("FirebaseError", databaseError.message) // Handle possible errors
+            }
+        })
+    }
+
+    private fun  fetchUserCFat(databaseReference: DatabaseReference) {
+        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val record = dataSnapshot.getValue(String::class.java)
+                record?.let {
+                    CFView.text = "Fat Consumed today : $it g "
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e("FirebaseError", databaseError.message) // Handle possible errors
+            }
+        })
+    }
+
+    private fun  fetchUserCCarbohydrates(databaseReference: DatabaseReference) {
+        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val record = dataSnapshot.getValue(String::class.java)
+                record?.let {
+                    CCView.text = "Carbohydrates Consumed today : $it g "
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e("FirebaseError", databaseError.message) // Handle possible errors
+            }
+        })
+    }
+
+
     fun getCurrentDate(): String {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
@@ -230,15 +301,3 @@ class homeActivity : AppCompatActivity() {
     }
 }
 
-data class UserProfile(
-    val age: String? = null,
-    val email: String? = null,
-    val habit: String? = null,
-    val height: String? = null,
-    val key: String? = null,
-    val sex: String? = null,
-    val target: String? = null,
-    val tdee: Double? = null,
-    val userID: String? = null,
-    val weight: String? = null
-)

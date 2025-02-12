@@ -44,8 +44,12 @@ class ChatViewModel : ViewModel() {
 
     fun sendMessage(content: String) {
         Log.d("ChatViewModel", "sendMessage called with content: $content")
-        val message = Message("user", content)
-        val payload = mapOf("messages" to listOf(message))
+        val userMessage = Message("user", content)
+        val updatedMessages = messages.value ?: mutableListOf()
+        updatedMessages.add(userMessage)
+        messages.postValue(updatedMessages)
+
+        val payload = mapOf("messages" to listOf(userMessage))
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 val response = chatService.sendMessage(payload).execute()
@@ -57,11 +61,10 @@ class ChatViewModel : ViewModel() {
                         val firstChoice = choices?.firstOrNull()
                         val messageContent = (firstChoice?.get("message") as? Map<String, Any>)?.get("content") as? String
                         if (messageContent != null) {
-                            val newMessage = Message("bot", messageContent)
-                            val updatedMessages = messages.value ?: mutableListOf()
-                            updatedMessages.add(newMessage)
+                            val botMessage = Message("bot", messageContent)
+                            updatedMessages.add(botMessage)
                             messages.postValue(updatedMessages)
-                            Log.d("ChatViewModel", "Message sent successfully: $newMessage")
+                            Log.d("ChatViewModel", "Message sent successfully: $botMessage")
                         } else {
                             Log.e("ChatViewModel", "Message content is null")
                         }
@@ -95,15 +98,18 @@ data class Food(
 data class User(
     val userID : String = "",
         val email:String ="",
-        val hight:String ="",
+        val height:String ="",
         val weight: String ="",
         val age :String ="",
         val sex :String ="",
         val habit:String ="",
-        val targe:String ="",
+        val target:String ="",
         var key: String? = null,
-        var tdee : Double =0.0
+        var tdee : Double =0.0,
+        var targetCalories :Double =0.0
         )
+
+
 
 data class FoodItem(
     val name: String,
@@ -128,3 +134,7 @@ data class Message(
     val role: String,
     val content: String
 )
+
+object UserProfileManager {
+    var myProfile: User? = null
+}

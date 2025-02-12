@@ -227,17 +227,28 @@ class foodDetails : AppCompatActivity() {
         mealsRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 var totalCalories = 0.0
-
+                var totalProtein = 0.0
+                var totalFat = 0.0
+                var totalCarbohydrates = 0.0
                 for (mealSnapshot in dataSnapshot.children) {
                     if (mealSnapshot.key != "record") {
                         for (foodSnapshot in mealSnapshot.child("Food").children) {
                             val calories = foodSnapshot.child("calories").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                            val protein = foodSnapshot.child("protein").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                            val fat = foodSnapshot.child("fat").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                            val carbohydrates = foodSnapshot.child("carbohydrates").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
                             totalCalories += calories
+                            totalProtein += protein
+                            totalFat += fat
+                            totalCarbohydrates += carbohydrates
                         }
                     }
                 }
 
                 mealsRef.child("record").setValue(totalCalories.toString())
+                mealsRef.child("protein").setValue(totalProtein.toString())
+                mealsRef.child("fat").setValue(totalFat.toString())
+                mealsRef.child("carbohydrates").setValue(totalCarbohydrates.toString())
             }
 
             override fun onCancelled(databaseError: DatabaseError) {

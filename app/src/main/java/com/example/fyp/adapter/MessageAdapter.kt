@@ -1,5 +1,6 @@
 package com.example.fyp.adapter
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.fyp.Message
@@ -28,7 +29,15 @@ class MessageAdapter : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() 
 
     class MessageViewHolder(private val binding: ItemMessageBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(message: Message) {
-            binding.messageText.text = message.content
+            if (message.role == "user") {
+                binding.userText.text = message.content
+                binding.userText.visibility = View.VISIBLE
+                binding.messageText.visibility = View.GONE
+            } else {
+                binding.messageText.text = message.content
+                binding.messageText.visibility = View.VISIBLE
+                binding.userText.visibility = View.GONE
+            }
         }
     }
 }

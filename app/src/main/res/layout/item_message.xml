@@ -6,7 +6,26 @@
 
     <TextView
         android:id="@+id/messageText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="50dp"
+        android:layout_marginBottom="20dp"
+        android:background="#84F371"
+        android:fontFamily="sans-serif-black"
+        android:textSize="16sp"
+        android:padding="10dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/userText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="16sp" />
+        android:layout_marginBottom="20dp"
+        android:background="#579AE3"
+        android:fontFamily="sans-serif-black"
+        android:textSize="16sp"
+
+        android:padding="10dp"
+        android:gravity="end"
+        android:layout_gravity="end" />
 </LinearLayout>
