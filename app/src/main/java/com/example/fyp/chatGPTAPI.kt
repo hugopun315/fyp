@@ -8,6 +8,10 @@ import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.fyp.adapter.MessageAdapter
 import com.example.fyp.databinding.ActivityChatGptapiBinding
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 class chatGPTAPI : AppCompatActivity() {
     val profile = UserProfileManager.myProfile
@@ -16,6 +20,14 @@ class chatGPTAPI : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
+        val calories = UserProfileManager.caloriesConsumedToday
+        val protein = UserProfileManager.proteinConsumedToday
+        val fat = UserProfileManager.fatConsumedToday
+        val carbohydrates = UserProfileManager.carbohydratesConsumedToday
+
+
         Log.d("chatGPTAPI", "onCreate called")
         binding = ActivityChatGptapiBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -39,8 +51,20 @@ class chatGPTAPI : AppCompatActivity() {
         }
 
         binding.presetButton1.setOnClickListener {
-            viewModel.sendMessage("Here is my body data: Weight: ${profile?.weight}, Height: ${profile?.height}, Exercise habit: ${profile?.habit}, Sex: ${profile?.sex}, Target: ${profile?.target}, targetCalories: ${profile?.targetCalories}.Reply in short, Help me to design 3 meals today")
+
+            var message  = "Here is my body data: Weight: ${profile?.weight}, Height: ${profile?.height}, Exercise habit: ${profile?.habit}, Sex: ${profile?.sex}, Target: ${profile?.target}, targetCalories: ${profile?.targetCalories}. Current time: ${getCurrentTime()}, "
+            if(calories != "0.0" ){
+                message += "I have already Consumed $calories kals, $protein g protein, $fat g fat and $carbohydrates g carbohydrates, help me to design a menu to achieve the target based on the current time period. Reply in short."
+            }else { message += "Help me to design a menu to achieve the target based on the current time period. Reply in short"}
+            viewModel.sendMessage(message)
             binding.messageInput.text.clear()
         }
     }
+}
+
+fun getCurrentTime(): String {
+    val dateFormat = SimpleDateFormat("HH:mm:ss", Locale.getDefault())
+    dateFormat.timeZone = TimeZone.getTimeZone("GMT+8")
+    val date = Date()
+    return dateFormat.format(date)
 }

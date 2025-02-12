@@ -70,8 +70,8 @@ class homeActivity : AppCompatActivity() {
         fetchUserCFat(databaseReference)
 
 
-     databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("carbohydrates")
-     fetchUserCCarbohydrates(databaseReference)
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("carbohydrates")
+        fetchUserCCarbohydrates(databaseReference)
 
 
 
@@ -220,10 +220,10 @@ class homeActivity : AppCompatActivity() {
                 val userProfile = dataSnapshot.getValue(User::class.java)
 
                 userProfile?.let {
-
-                    UserProfileManager.myProfile  = userProfile
+                    UserProfileManager.myProfile = userProfile
                     val profile = UserProfileManager.myProfile
-                    TDEEView.text = "Your Total Daily Energy Expenditure : " + profile?.tdee.toString() + " kals "
+                    UserProfileManager.tdee = profile?.tdee.toString()
+                    TDEEView.text = "Your Total Daily Energy Expenditure : " + UserProfileManager.tdee + " kals "
                 }
             }
 
@@ -238,6 +238,7 @@ class homeActivity : AppCompatActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val record = dataSnapshot.getValue(String::class.java)
                 record?.let {
+                    UserProfileManager.caloriesConsumedToday = it
                     CCTView.text = "Calories Consumed today : $it kals "
                 }
             }
@@ -253,6 +254,7 @@ class homeActivity : AppCompatActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val protein = dataSnapshot.getValue(String::class.java)
                 protein?.let {
+                    UserProfileManager.proteinConsumedToday = it
                     CPView.text = "Protein Consumed today : $it g "
                 }
             }
@@ -263,11 +265,12 @@ class homeActivity : AppCompatActivity() {
         })
     }
 
-    private fun  fetchUserCFat(databaseReference: DatabaseReference) {
+    private fun fetchUserCFat(databaseReference: DatabaseReference) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val record = dataSnapshot.getValue(String::class.java)
                 record?.let {
+                    UserProfileManager.fatConsumedToday = it
                     CFView.text = "Fat Consumed today : $it g "
                 }
             }
@@ -278,11 +281,12 @@ class homeActivity : AppCompatActivity() {
         })
     }
 
-    private fun  fetchUserCCarbohydrates(databaseReference: DatabaseReference) {
+    private fun fetchUserCCarbohydrates(databaseReference: DatabaseReference) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val record = dataSnapshot.getValue(String::class.java)
                 record?.let {
+                    UserProfileManager.carbohydratesConsumedToday = it
                     CCView.text = "Carbohydrates Consumed today : $it g "
                 }
             }
@@ -293,11 +297,9 @@ class homeActivity : AppCompatActivity() {
         })
     }
 
-
     fun getCurrentDate(): String {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return dateFormat.format(calendar.time)
     }
 }
-
