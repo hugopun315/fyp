@@ -22,26 +22,28 @@ import com.google.firebase.database.ValueEventListener
 class foodDetails : AppCompatActivity() {
     private var key: String = ""
     private var imageUrl: String = ""
-    private var fav : String = ""
-    private var qty : String = ""
-    private var foodTitle : String = ""
-    private var foodWeight  : String = ""
-    private var foodCar : String = ""
-    private var foodPro : String = ""
-    private var foodFat : String = ""
-    private var foodCal : String = ""
-    private var time : String = ""
-    private var date : String = ""
-    private var value : String = ""
-    private var brands : String = ""
-    private var auth= FirebaseAuth.getInstance()
+    private var fav: String = ""
+    private var qty: String = ""
+    private var foodTitle: String = ""
+    private var foodWeight: String = ""
+    private var foodCar: String = ""
+    private var foodPro: String = ""
+    private var foodFat: String = ""
+    private var foodCal: String = ""
+    private var time: String = ""
+    private var date: String = ""
+    private var value: String = ""
+    private var brands: String = ""
+    private var food: Food? = null
+    private var auth = FirebaseAuth.getInstance()
     private lateinit var decreaseQty: Button
     private lateinit var increaseQty: Button
     private lateinit var quantityEditText: EditText
     private lateinit var addButton: Button
+    private lateinit var aiButton: Button
     val currentUser = auth.currentUser
     val userID = currentUser?.uid
-
+    private var context: Context = this
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_food_details)
@@ -53,6 +55,7 @@ class foodDetails : AppCompatActivity() {
         val pro: TextView = findViewById(R.id.protein)
         val fat: TextView = findViewById(R.id.fat)
         val brand: TextView = findViewById(R.id.brands)
+
         decreaseQty = findViewById(R.id.decreaseQty)
         increaseQty = findViewById(R.id.increaseQty)
         quantityEditText = findViewById(R.id.quantity)
@@ -60,6 +63,7 @@ class foodDetails : AppCompatActivity() {
 
 
         addButton = findViewById(R.id.addRecord)
+        aiButton = findViewById(R.id.AIButton)
         decreaseQty.setOnClickListener {
             val currentQty = quantityEditText.text.toString().toInt()
             if (currentQty > 1) {
@@ -72,7 +76,7 @@ class foodDetails : AppCompatActivity() {
         }
         val bundle = intent.extras
         if (bundle != null) {
-            title.text =  bundle.getString("title") ?: "No Title"
+            title.text = bundle.getString("title") ?: "No Title"
             cal.text = "calories: " + bundle.getString("cal") + " kcal" ?: "0"
             car.text = "carbohydrates: " + bundle.getString("car") + " g" ?: "0"
             pro.text = "protein: " + bundle.getString("pro") + " g" ?: "0"
@@ -86,21 +90,20 @@ class foodDetails : AppCompatActivity() {
             foodWeight = bundle.getString("weight") ?: ""
             foodCar = bundle.getString("car") ?: ""
             foodPro = bundle.getString("pro") ?: ""
-            foodFat= bundle.getString("fat") ?: ""
+            foodFat = bundle.getString("fat") ?: ""
             foodCal = bundle.getString("cal") ?: ""
             time = bundle.getString("time") ?: ""
-            date= bundle.getString("date") ?: ""
+            date = bundle.getString("date") ?: ""
             value = bundle.getString("value") ?: ""
             brands = bundle.getString("brands") ?: ""
-
-            if(brands != ""){
-                brand.text = "brand: "+brands
+            if (brands != "") {
+                brand.text = "brand: " + brands
             }
 
 
-            if (value == "remove"){
+            if (value == "remove") {
                 addButton.text = "remove"
-            }else if(value == "search"){
+            } else if (value == "search") {
                 addButton.visibility = View.INVISIBLE
             }
             // A for already
@@ -118,14 +121,26 @@ class foodDetails : AppCompatActivity() {
 
 
         addButton.setOnClickListener {
-            if(addButton.text == "remove"){
+            if (addButton.text == "remove") {
                 removeFood()
-
-            }
-            else{
+            } else {
                 uploadFood()
             }
 
+        }
+
+        aiButton.setOnClickListener {
+
+
+            val intent = Intent(context, chatGPTAPI::class.java).apply {
+                putExtra("foodTitle",foodTitle)
+                putExtra("foodCar",foodCar)
+                putExtra("foodPro",foodPro)
+                putExtra("foodFat",foodFat)
+                putExtra("foodCal",foodCal)
+
+            }
+            context.startActivity(intent)
         }
 
 
@@ -149,7 +164,19 @@ class foodDetails : AppCompatActivity() {
         val userID = FirebaseAuth.getInstance().currentUser?.uid
 
         // Create a Food object
-        val dataClass = Food(name, protein, carbohydrates, fat, weight, qty, favour, imageURL, cal.toString(), foodKey, brands)
+        val dataClass = Food(
+            name,
+            protein,
+            carbohydrates,
+            fat,
+            weight,
+            qty,
+            favour,
+            imageURL,
+            cal.toString(),
+            foodKey,
+            brands
+        )
 
         Log.d("UploadData", "Data Class: $dataClass")
 
@@ -233,10 +260,16 @@ class foodDetails : AppCompatActivity() {
                 for (mealSnapshot in dataSnapshot.children) {
                     if (mealSnapshot.key != "record") {
                         for (foodSnapshot in mealSnapshot.child("Food").children) {
-                            val calories = foodSnapshot.child("calories").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
-                            val protein = foodSnapshot.child("protein").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
-                            val fat = foodSnapshot.child("fat").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
-                            val carbohydrates = foodSnapshot.child("carbohydrates").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                            val calories =
+                                foodSnapshot.child("calories").getValue(String::class.java)
+                                    ?.toDoubleOrNull() ?: 0.0
+                            val protein = foodSnapshot.child("protein").getValue(String::class.java)
+                                ?.toDoubleOrNull() ?: 0.0
+                            val fat = foodSnapshot.child("fat").getValue(String::class.java)
+                                ?.toDoubleOrNull() ?: 0.0
+                            val carbohydrates =
+                                foodSnapshot.child("carbohydrates").getValue(String::class.java)
+                                    ?.toDoubleOrNull() ?: 0.0
                             totalCalories += calories
                             totalProtein += protein
                             totalFat += fat

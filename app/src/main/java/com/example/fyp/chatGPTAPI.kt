@@ -21,16 +21,27 @@ class chatGPTAPI : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Initialize binding
+        binding = ActivityChatGptapiBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val bundle = intent.extras
+
+        if (bundle != null) {
+            val foodTitle = bundle.getString("foodTitle") ?: "null"
+            val foodCar = bundle.getString("foodCar") ?: "null"
+            val foodPro = bundle.getString("foodPro") ?: "null"
+            val foodFat = bundle.getString("foodFat") ?: "null"
+            val foodCal = bundle.getString("foodCal") ?: "null"
+            askForComment(foodTitle, foodCar, foodPro, foodFat, foodCal, binding, viewModel)
+        }
 
         val calories = UserProfileManager.caloriesConsumedToday
         val protein = UserProfileManager.proteinConsumedToday
         val fat = UserProfileManager.fatConsumedToday
         val carbohydrates = UserProfileManager.carbohydratesConsumedToday
 
-
         Log.d("chatGPTAPI", "onCreate called")
-        binding = ActivityChatGptapiBinding.inflate(layoutInflater)
-        setContentView(binding.root)
 
         val adapter = MessageAdapter()
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
@@ -51,15 +62,37 @@ class chatGPTAPI : AppCompatActivity() {
         }
 
         binding.presetButton1.setOnClickListener {
-
-            var message  = "Here is my body data: Weight: ${profile?.weight}, Height: ${profile?.height}, Exercise habit: ${profile?.habit}, Sex: ${profile?.sex}, Target: ${profile?.target}, targetCalories: ${profile?.targetCalories}. Current time: ${getCurrentTime()}, "
-            if(calories != "0.0" ){
+            var message =
+                "my targetCalories is ${profile?.targetCalories} and Current time is ${getCurrentTime()}, "
+            if (calories != "0.0") {
                 message += "I have already Consumed $calories kals, $protein g protein, $fat g fat and $carbohydrates g carbohydrates, help me to design a menu to achieve the target based on the current time period. Reply in short."
-            }else { message += "Help me to design a menu to achieve the target based on the current time period. Reply in short"}
+            } else {
+                message += "Help me to design a menu to achieve the target based on the current time period. Reply in short"
+            }
             viewModel.sendMessage(message)
             binding.messageInput.text.clear()
         }
     }
+}
+
+fun askForComment(
+    title: String,
+    carbohydrates: String,
+    protein: String,
+    fat: String,
+    foodCalories: String,
+    binding: ActivityChatGptapiBinding,
+    viewModel: ChatViewModel
+) {
+    var message =
+        "Here are the information of the food $title for 100g, carbohydrates: $carbohydrates, fat: $fat, protein: $protein, calories: $foodCalories. "
+    if (    UserProfileManager.caloriesConsumedToday!= "0.0") {
+        message += "I have already Consumed ${UserProfileManager.caloriesConsumedToday} kals, ${UserProfileManager.proteinConsumedToday} g protein, ${UserProfileManager.fatConsumedToday} g fat and ${UserProfileManager.carbohydratesConsumedToday} g carbohydrates. Give me a comment, should I intake this food? Reply in short"
+    }else{
+        message +="Give me a comment, should I intake this food? Reply in short"
+    }
+    viewModel.sendMessage(message)
+    binding.messageInput.text.clear()
 }
 
 fun getCurrentTime(): String {
