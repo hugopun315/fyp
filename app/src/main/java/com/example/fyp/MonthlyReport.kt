@@ -3,17 +3,24 @@ package com.example.fyp
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.components.LimitLine
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
@@ -26,33 +33,85 @@ class MonthlyReport : AppCompatActivity() {
     private lateinit var databaseReference2: DatabaseReference
     private lateinit var auth: FirebaseAuth
     private lateinit var concludeTitle: TextView
+
+    private lateinit var monthSpinner: Spinner
+    private lateinit var yearSpinner: Spinner
     private var protein: Double = 0.0
     private var fat: Double = 0.0
     private var carbohydrates: Double = 0.0
     private var record: Double = 0.0
 
+    private var count: Int = 0
+    private var numbersOfDay =0
+    private var userProfile: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_monthly_report)
         auth = FirebaseAuth.getInstance()
         concludeTitle = findViewById(R.id.concludeTitle)
+        monthSpinner = findViewById(R.id.monthSpinner)
+        yearSpinner = findViewById(R.id.yearSpinner)
+
         val currentUser = auth.currentUser
 
         val userID = currentUser?.uid
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("MonthlyReport").child("2025").child("02")
-        val pieChart = findViewById<PieChart>(R.id.pieChart)
-        fetchPieChartData(databaseReference, pieChart)
+        setupSpinners()
 
-        databaseReference2 = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("profile")
-        fetchUserProfile(databaseReference2)
+        monthSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                updateData(userID)
+            }
 
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
 
+        yearSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                updateData(userID)
+            }
 
+            override fun onNothingSelected(parent: AdapterView<*>) {}
+        }
     }
 
-    private fun fetchPieChartData(databaseReference: DatabaseReference, pieChart: PieChart) {
+    private fun setupSpinners() {
+        val months = arrayOf("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
+        val years = arrayOf("2025")
+
+        val monthAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, months)
+        monthAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        monthSpinner.adapter = monthAdapter
+
+        val yearAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, years)
+        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        yearSpinner.adapter = yearAdapter
+
+        monthSpinner.setSelection(1) // Default to February
+        yearSpinner.setSelection(0) // Default to 2025
+    }
+
+    private fun updateData(userID: String?) {
+        val selectedMonth = monthSpinner.selectedItem.toString()
+        val selectedYear = yearSpinner.selectedItem.toString()
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("MonthlyReport").child(selectedYear).child(selectedMonth)
+        val pieChart = findViewById<PieChart>(R.id.pieChart)
+        val intake = findViewById<TextView>(R.id.intake)
+        fetchPieChartData(databaseReference, pieChart, intake)
+
+        databaseReference2 = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("profile")
+        fetchUserProfile(databaseReference2, object : UserProfileCallback {
+            override fun onUserProfileFetched(userProfile: User?) {
+                val lineChart = findViewById<LineChart>(R.id.lineChart)
+                val details = findViewById<TextView>(R.id.details)
+                fetchLineChartData(databaseReference, lineChart, userProfile, details)
+            }
+        })
+    }
+
+    private fun fetchPieChartData(databaseReference: DatabaseReference, pieChart: PieChart, intake: TextView) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val report = dataSnapshot.getValue(Report::class.java)
@@ -65,6 +124,7 @@ class MonthlyReport : AppCompatActivity() {
                     val chartProtein = protein * 4 / record * 100
                     val chartCarbohydrates = carbohydrates * 4 / record * 100
                     val chartFat = fat * 9 / record * 100
+                    intake.text = "Total calorie intake: $record\nProtein: $protein g\nFat: $fat g\nCarbohydrates: $carbohydrates g\nThis pie chart shows the proportions of the three nutrients, including the total intake of protein, carbohydrates, and fat and their proportions."
 
                     // Pie Chart setup
                     val pieEntries = listOf(
@@ -76,10 +136,21 @@ class MonthlyReport : AppCompatActivity() {
                     pieDataSet.colors = ColorTemplate.MATERIAL_COLORS.toList()
                     pieDataSet.valueTextSize = 18f
                     pieDataSet.valueTextColor = Color.BLACK
+
+                    // Custom ValueFormatter to add "%" symbol
+                    pieDataSet.valueFormatter = object : ValueFormatter() {
+                        override fun getFormattedValue(value: Float): String {
+                            return String.format("%.1f%%", value)
+                        }
+                    }
+
                     val pieData = PieData(pieDataSet)
                     pieChart.data = pieData
                     pieChart.setEntryLabelTextSize(12f)
+                    pieChart.setEntryLabelColor(Color.BLACK) // Set entry label color to black
                     pieChart.invalidate()
+
+
                 }
             }
 
@@ -89,15 +160,22 @@ class MonthlyReport : AppCompatActivity() {
         })
     }
 
-    private fun fetchLineChartData(databaseReference: DatabaseReference, lineChart: LineChart, userProfile: User?) {
+    private fun fetchLineChartData(databaseReference: DatabaseReference, lineChart: LineChart, userProfile: User?, details: TextView) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val lineEntries = mutableListOf<Entry>()
+                numbersOfDay = 0 // Reset count before calculation
+                count = 0 // Reset count before calculation
                 for (daySnapshot in dataSnapshot.children) {
                     val day = daySnapshot.key?.toFloatOrNull()
                     val record = daySnapshot.child("record").getValue(String::class.java)?.toFloatOrNull()
                     if (day != null && record != null) {
                         lineEntries.add(Entry(day, record))
+                        numbersOfDay += 1
+                        if (record > userProfile?.targetCalories!!) {
+                            count += 1
+                        }
                     }
                 }
 
@@ -112,8 +190,8 @@ class MonthlyReport : AppCompatActivity() {
                 lineChart.setScaleEnabled(true)
                 lineChart.setPinchZoom(true)
 
-                // Add a red limit line at Y-axis 2000
-                val limitLine = LimitLine(userProfile?.targetCalories?.toFloat()!!, "Target")
+                // Add a red limit line at Y-axis userProfile?.targetCalories?.toFloat()!!
+                val limitLine = LimitLine(userProfile?.targetCalories?.toFloat() ?: 2000f, "Target")
                 limitLine.lineWidth = 2f
                 limitLine.lineColor = Color.RED
                 limitLine.textColor = Color.RED
@@ -121,8 +199,32 @@ class MonthlyReport : AppCompatActivity() {
 
                 val yAxis = lineChart.axisLeft
                 yAxis.addLimitLine(limitLine)
+                yAxis.axisMinimum = 0f // Start Y-axis at 0
+                yAxis.setDrawLabels(true)
+                yAxis.setDrawLimitLinesBehindData(true)
+                yAxis.valueFormatter = object : ValueFormatter() {
+                    override fun getFormattedValue(value: Float): String {
+                        return "$value calories"
+                    }
+                }
+
+                val xAxis = lineChart.xAxis
+                xAxis.position = XAxis.XAxisPosition.BOTTOM
+                xAxis.setDrawLabels(true)
+                xAxis.valueFormatter = object : ValueFormatter() {
+                    override fun getFormattedValue(value: Float): String {
+                        return "Day ${value.toInt()}"
+                    }
+                }
 
                 lineChart.invalidate()
+
+                if (userProfile != null) {
+                    details.text = "The line chart shows the trend of daily intake, and your calorie target is ${userProfile.targetCalories}, You've exceeded the standard for a total of $count day(s)."
+                }
+
+                // Call someOtherFunction after data is processed
+                someOtherFunction(userProfile)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -131,14 +233,12 @@ class MonthlyReport : AppCompatActivity() {
         })
     }
 
-    private fun fetchUserProfile(databaseReference2: DatabaseReference) {
-        var userProfile: User?
-        databaseReference2.addListenerForSingleValueEvent(object : ValueEventListener {
+    private fun fetchUserProfile(databaseReference: DatabaseReference, callback: UserProfileCallback) {
+        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 userProfile = dataSnapshot.getValue(User::class.java)
                 userProfile?.let {
                     it.height = dataSnapshot.child("height").getValue(String::class.java) ?: ""
-
                     it.weight = dataSnapshot.child("weight").getValue(String::class.java) ?: ""
                     it.target = dataSnapshot.child("target").getValue(String::class.java) ?: ""
                     it.age = dataSnapshot.child("age").getValue(String::class.java) ?: ""
@@ -146,18 +246,47 @@ class MonthlyReport : AppCompatActivity() {
                     it.sex = dataSnapshot.child("sex").getValue(String::class.java) ?: ""
                     it.targetCalories = dataSnapshot.child("targetCalories").getValue(Double::class.java) ?: 0.0
                     it.tdee = dataSnapshot.child("tdee").getValue(Double::class.java) ?: 0.0
+
+                    // Update concludeTitle text here
+                    callback.onUserProfileFetched(userProfile)
                 }
-
-                val lineChart = findViewById<LineChart>(R.id.lineChart)
-                fetchLineChartData(databaseReference, lineChart , userProfile)
             }
-
 
             override fun onCancelled(databaseError: DatabaseError) {
                 Log.e("FirebaseError", databaseError.message) // Handle possible errors
             }
         })
-
-
     }
+
+    private fun someOtherFunction(userProfile: User?) {
+        // Access the stored values
+        val viewModel: ChatViewModel by viewModels()
+        val totalCalories = record
+        val totalProtein = protein
+        val totalFat = fat
+        val totalCarbohydrates = carbohydrates
+
+        val recommend = findViewById<TextView>(R.id.recommend)
+
+        // Use userProfile data
+        val targetCalories = userProfile?.targetCalories ?: 0.0
+        val userTargetCal = userProfile?.targetCalories
+        val userHeight = userProfile?.height ?: ""
+        val userWeight = userProfile?.weight ?: ""
+        val age = userProfile?.age ?: ""
+        val target = userProfile?.target ?: ""
+        val habit = userProfile?.habit ?: ""
+        val sex = userProfile?.sex ?: ""
+        val sendText = "Now have $numbersOfDay day(s) record by the user this month, and then he/she has $count day(s) exceeded the calorie target, which is $userTargetCal in one day. Here are the details of the user:\nsex: $sex\nHeight: $userHeight\nWeight: $userWeight\nAge: $age\nTarget: $target\nHabit: $habit\nHere are the Total three nutrients intake (g) in $numbersOfDay day(s):\nProtein: $protein\nFat: $fat\nCarbohydrates: $carbohydrates\n" +
+                "You have 2 tasks:\n" +
+                "1. Summary: summarises the diet for the whole month IN SHORT\n" +
+                "2. Suggestions for the future: Provide some suggestions for future diets based on the user's goals and past diets IN SHORT."
+
+        // Send the message and update the recommend TextView with the AI response
+        viewModel.sendAndDisplayMessage(sendText, recommend)
+    }
+}
+
+interface UserProfileCallback {
+    fun onUserProfileFetched(userProfile: User?)
 }

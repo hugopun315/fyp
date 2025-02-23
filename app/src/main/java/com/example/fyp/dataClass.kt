@@ -1,6 +1,9 @@
 package com.example.fyp
 
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
+import android.widget.TextView
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -63,6 +66,51 @@ class ChatViewModel : ViewModel() {
                             updatedMessages.add(botMessage)
                             messages.postValue(updatedMessages)
                             Log.d("ChatViewModel", "Message sent successfully: $botMessage")
+                        } else {
+                            Log.e("ChatViewModel", "Message content is null")
+                        }
+                    } else {
+                        Log.e("ChatViewModel", "Response body is null")
+                    }
+                } else {
+                    Log.e(
+                        "ChatViewModel",
+                        "Error sending message: ${response.errorBody()?.string()}"
+                    )
+                }
+            } catch (e: Exception) {
+                Log.e("ChatViewModel", "Exception sending message", e)
+            }
+        }
+    }
+
+    fun sendAndDisplayMessage(content: String, recommend: TextView) {
+        Log.d("ChatViewModel", "sendAndDisplayMessage called with content: $content")
+        val userMessage = Message("user", content)
+        val updatedMessages = messages.value ?: mutableListOf()
+        updatedMessages.add(userMessage)
+        messages.postValue(updatedMessages)
+
+        val payload = mapOf("messages" to listOf(userMessage))
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val response = chatService.sendMessage(payload).execute()
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    Log.d("ChatViewModel", "Response body: $responseBody")
+                    if (responseBody != null) {
+                        val choices = responseBody["choices"] as? List<Map<String, Any>>
+                        val firstChoice = choices?.firstOrNull()
+                        val messageContent =
+                            (firstChoice?.get("message") as? Map<String, Any>)?.get("content") as? String
+                        if (messageContent != null) {
+                            val botMessage = Message("bot", messageContent)
+                            updatedMessages.add(botMessage)
+                            messages.postValue(updatedMessages)
+                            Log.d("ChatViewModel", "Message sent successfully: $botMessage")
+                            Handler(Looper.getMainLooper()).post {
+                                recommend.text = messageContent // Update the recommend TextView with the AI response
+                            }
                         } else {
                             Log.e("ChatViewModel", "Message content is null")
                         }
