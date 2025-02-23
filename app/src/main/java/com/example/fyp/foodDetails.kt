@@ -308,7 +308,6 @@ class foodDetails : AppCompatActivity() {
 
     }
 
-
     private fun updateMonthReport(
         userId: String,
         year: String,
@@ -327,46 +326,43 @@ class foodDetails : AppCompatActivity() {
             .child(year)
             .child(month)
 
-        monthRef.addListenerForSingleValueEvent(object : ValueEventListener {
+        val mealsRef = FirebaseDatabase.getInstance().reference
+            .child("Users")
+            .child(userId)
+            .child("meals")
+
+        mealsRef.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 var record = 0.0
                 var protein = 0.0
                 var fat = 0.0
                 var carbohydrates = 0.0
 
-                for (daySnapshot in dataSnapshot.child("day").children) {
-                    record += daySnapshot.child("record").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
-                    protein += daySnapshot.child("protein").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
-                    fat += daySnapshot.child("fat").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
-                    carbohydrates += daySnapshot.child("carbohydrates").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                for (mealSnapshot in dataSnapshot.children) {
+                    val mealDate = mealSnapshot.key ?: continue
+                    if (mealDate.startsWith("$year-$month")) {
+                        for (timeSnapshot in mealSnapshot.children) {
+                            for (foodSnapshot in timeSnapshot.child("Food").children) {
+                                record += foodSnapshot.child("calories").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                                protein += foodSnapshot.child("protein").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                                fat += foodSnapshot.child("fat").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                                carbohydrates += foodSnapshot.child("carbohydrates").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                            }
+                        }
+                    }
                 }
 
-                if (sign == "+") {
-                    record += totalCalories.toDouble()
-                    protein += totalProtein.toDouble()
-                    fat += totalFat.toDouble()
-                    carbohydrates += totalCarbohydrates.toDouble()
-                } else if (sign == "-") {
-                    record -= totalCalories.toDouble()
-                    protein -= totalProtein.toDouble()
-                    fat -= totalFat.toDouble()
-                    carbohydrates -= totalCarbohydrates.toDouble()
-                }
-
-                // Ensure values don't go below zero
-                record = maxOf(0.0, record)
-                protein = maxOf(0.0, protein)
-                fat = maxOf(0.0, fat)
-                carbohydrates = maxOf(0.0, carbohydrates)
-
-                Log.d("UpdateMonthReport", "Updated values - Record: $record, Protein: $protein, Fat: $fat, Carbohydrates: $carbohydrates")
+                Log.d("UpdateMonthReport", "Recalculated values - Record: $record, Protein: $protein, Fat: $fat, Carbohydrates: $carbohydrates")
 
                 val updates = mapOf(
                     "record" to record.toString(),
                     "protein" to protein.toString(),
                     "fat" to fat.toString(),
                     "carbohydrates" to carbohydrates.toString(),
-                    "day/$day" to true
+                    "$day/record" to totalCalories,
+                    "$day/protein" to totalProtein,
+                    "$day/fat" to totalFat,
+                    "$day/carbohydrates" to totalCarbohydrates
                 )
 
                 monthRef.updateChildren(updates).addOnCompleteListener { task ->
