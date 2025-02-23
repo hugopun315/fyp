@@ -52,7 +52,9 @@ class homeActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
         val todayDate = getCurrentDate()
-
+        val year = getCurrentYear()
+        val month = getCurrentMonth()
+        val day = getCurrentDay()
         val userID = currentUser?.uid
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("profile")
@@ -301,5 +303,23 @@ class homeActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return dateFormat.format(calendar.time)
+    }
+
+    fun getCurrentYear(): String {
+        val calendar = Calendar.getInstance()
+        val yearFormat = SimpleDateFormat("yyyy", Locale.getDefault())
+        return yearFormat.format(calendar.time)
+    }
+
+    fun getCurrentMonth(): String {
+        val calendar = Calendar.getInstance()
+        val monthFormat = SimpleDateFormat("MM", Locale.getDefault())
+        return monthFormat.format(calendar.time)
+    }
+
+    fun getCurrentDay(): String {
+        val calendar = Calendar.getInstance()
+        val dayFormat = SimpleDateFormat("dd", Locale.getDefault())
+        return dayFormat.format(calendar.time)
     }
 }

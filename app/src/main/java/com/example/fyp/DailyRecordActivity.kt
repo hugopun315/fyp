@@ -80,7 +80,7 @@ class DailyRecordActivity : AppCompatActivity() {
             if (userID != null) {
 
                 databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(selectedDate).child("record")
-                fetchUserCCT(databaseReference)
+                fetchUserCCT(databaseReference ,selectedDate )
                 // Fetch breakfast food items
                 val breakfastDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(selectedDate).child("breakfast").child("Food")
                 val breakfastEventListener = object : ValueEventListener {
@@ -167,12 +167,12 @@ class DailyRecordActivity : AppCompatActivity() {
 
     }
 
-    private fun fetchUserCCT(databaseReference: DatabaseReference) {
+    private fun fetchUserCCT(databaseReference: DatabaseReference, selectedDate : String) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val record = dataSnapshot.getValue(String::class.java)
                 record?.let {
-                    CCTView.text = "Calories Consumed today : $it kals"
+                    CCTView.text = "Calories Consumed at $selectedDate : $it kals"
                 }
             }
 

@@ -198,7 +198,7 @@ class foodDetails : AppCompatActivity() {
                         if (task.isSuccessful) {
                             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
                             // Update total calories
-                            updateTotalCalories(userID, date)
+                            updateTotalCalories(userID, date , "+")
                         }
                     }.addOnFailureListener { e ->
                         Log.e("UploadError", "Error uploading data: ${e.message}")
@@ -233,7 +233,7 @@ class foodDetails : AppCompatActivity() {
                     if (task.isSuccessful) {
                         Toast.makeText(this, "Removed", Toast.LENGTH_SHORT).show()
                         // Update total calories
-                        updateTotalCalories(userID, date)
+                        updateTotalCalories(userID, date, "-")
                     }
                 }.addOnFailureListener { e ->
                     Log.e("RemoveError", "Error removing data: ${e.message}")
@@ -244,7 +244,7 @@ class foodDetails : AppCompatActivity() {
         }
     }
 
-    private fun updateTotalCalories(userId: String, date: String) {
+    private fun updateTotalCalories(userId: String, date: String, sign : String ) {
         val mealsRef = FirebaseDatabase.getInstance().reference
             .child("Users")
             .child(userId)
@@ -282,6 +282,15 @@ class foodDetails : AppCompatActivity() {
                 mealsRef.child("protein").setValue(totalProtein.toString())
                 mealsRef.child("fat").setValue(totalFat.toString())
                 mealsRef.child("carbohydrates").setValue(totalCarbohydrates.toString())
+
+
+                val dateParts = date.split("-")
+
+                val year = dateParts[0]
+                val month = dateParts[1]
+                val day = dateParts[2]
+
+                updateMonthReport( userId,year, month , day, totalCalories.toString(), totalProtein.toString() , totalFat.toString(), totalCarbohydrates.toString() , sign)
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -294,7 +303,84 @@ class foodDetails : AppCompatActivity() {
             putExtra("time", time)
         }
         context.startActivity(intent)
+
+
+
     }
 
 
+    private fun updateMonthReport(
+        userId: String,
+        year: String,
+        month: String,
+        day: String,
+        totalCalories: String,
+        totalProtein: String,
+        totalFat: String,
+        totalCarbohydrates: String,
+        sign: String
+    ) {
+        val monthRef = FirebaseDatabase.getInstance().reference
+            .child("Users")
+            .child(userId)
+            .child("MonthlyReport")
+            .child(year)
+            .child(month)
+
+        monthRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                var record = 0.0
+                var protein = 0.0
+                var fat = 0.0
+                var carbohydrates = 0.0
+
+                for (daySnapshot in dataSnapshot.child("day").children) {
+                    record += daySnapshot.child("record").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                    protein += daySnapshot.child("protein").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                    fat += daySnapshot.child("fat").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                    carbohydrates += daySnapshot.child("carbohydrates").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                }
+
+                if (sign == "+") {
+                    record += totalCalories.toDouble()
+                    protein += totalProtein.toDouble()
+                    fat += totalFat.toDouble()
+                    carbohydrates += totalCarbohydrates.toDouble()
+                } else if (sign == "-") {
+                    record -= totalCalories.toDouble()
+                    protein -= totalProtein.toDouble()
+                    fat -= totalFat.toDouble()
+                    carbohydrates -= totalCarbohydrates.toDouble()
+                }
+
+                // Ensure values don't go below zero
+                record = maxOf(0.0, record)
+                protein = maxOf(0.0, protein)
+                fat = maxOf(0.0, fat)
+                carbohydrates = maxOf(0.0, carbohydrates)
+
+                Log.d("UpdateMonthReport", "Updated values - Record: $record, Protein: $protein, Fat: $fat, Carbohydrates: $carbohydrates")
+
+                val updates = mapOf(
+                    "record" to record.toString(),
+                    "protein" to protein.toString(),
+                    "fat" to fat.toString(),
+                    "carbohydrates" to carbohydrates.toString(),
+                    "day/$day" to true
+                )
+
+                monthRef.updateChildren(updates).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Log.d("UpdateMonthReport", "Values updated successfully")
+                    } else {
+                        Log.e("UpdateMonthReport", "Failed to update values: ${task.exception?.message}")
+                    }
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e("FirebaseError", "Error fetching data: ${databaseError.message}")
+            }
+        })
+    }
 }

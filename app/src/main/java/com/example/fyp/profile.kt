@@ -87,6 +87,12 @@ class profile : AppCompatActivity() {
                     val intent = Intent(this, DailyRecordActivity::class.java)
                     startActivity(intent)
                 }
+
+                2 -> { // "View daily record" item
+                    val intent = Intent(this, MonthlyReport::class.java)
+                    startActivity(intent)
+                }
+
                 // Handle other items if needed
             }
         }
@@ -95,9 +101,9 @@ class profile : AppCompatActivity() {
     private fun fetchUserProfile(databaseReference: DatabaseReference) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
-                val userProfile = dataSnapshot.getValue(UserProfile2::class.java)
+                val userProfile = dataSnapshot.getValue(User::class.java)
                 userProfile?.let {
-                    headerText.text = "Your body data:\nHeight: ${it.hight} cm\nWeight: ${it.weight} KG\nTarget: ${it.targe}\nTDEE: ${it.tdee} kcal\n\nChoose a function below"
+                    headerText.text = "Your body data:\nHeight: ${it.height} cm\nWeight: ${it.weight} KG\nTarget: ${it.target}\nTDEE: ${it.tdee} kcal\n\nChoose a function below"
                 }
             }
 
@@ -108,15 +114,3 @@ class profile : AppCompatActivity() {
     }
 }
 
-data class UserProfile2(
-    val age: String? = null,
-    val email: String? = null,
-    val habit: String? = null,
-    val hight: String? = null,
-    val key: String? = null,
-    val sex: String? = null,
-    val targe: String? = null,
-    val tdee: Double? = null,
-    val userID: String? = null,
-    val weight: String? = null
-)
