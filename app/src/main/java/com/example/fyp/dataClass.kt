@@ -97,14 +97,14 @@ data class Food(
 )
 
 data class User(
-    val userID: String = "",
-    val email: String = "",
-    val height: String = "",
-    val weight: String = "",
-    val age: String = "",
-    val sex: String = "",
-    val habit: String = "",
-    val target: String = "",
+    var userID: String = "",
+    var  email: String = "",
+    var height: String = "",
+    var  weight: String = "",
+    var  age: String = "",
+    var  sex: String = "",
+    var  habit: String = "",
+    var  target: String = "",
     var key: String? = null,
     var tdee: Double = 0.0,
     var targetCalories: Double = 0.0
