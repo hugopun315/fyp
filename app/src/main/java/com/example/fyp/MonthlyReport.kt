@@ -279,8 +279,8 @@ class MonthlyReport : AppCompatActivity() {
         val sex = userProfile?.sex ?: ""
         val sendText = "Now have $numbersOfDay day(s) record by the user this month, and then he/she has $count day(s) exceeded the calorie target, which is $userTargetCal in one day. Here are the details of the user:\nsex: $sex\nHeight: $userHeight\nWeight: $userWeight\nAge: $age\nTarget: $target\nHabit: $habit\nHere are the Total three nutrients intake (g) in $numbersOfDay day(s):\nProtein: $protein\nFat: $fat\nCarbohydrates: $carbohydrates\n" +
                 "You have 2 tasks:\n" +
-                "1. Summary: summarises the diet for the whole month IN SHORT\n" +
-                "2. Suggestions for the future: Provide some suggestions for future diets based on the user's goals and past diets IN SHORT."
+                "1. Summary: summarises the diet for the whole month, you can summary of objectives and data captured. but IN SHORT\n" +
+                "2. Suggestions for the future: Provide some suggestions for future diets based on the user's goals and past diets, you can make recommendations on user data, objectives, and ingested data. But IN SHORT."
 
         // Send the message and update the recommend TextView with the AI response
         viewModel.sendAndDisplayMessage(sendText, recommend)
