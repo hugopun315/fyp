@@ -2,6 +2,8 @@ package com.example.fyp
 
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.charts.PieChart
@@ -13,29 +15,36 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.utils.ColorTemplate
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class MonthlyReport : AppCompatActivity() {
+    private lateinit var databaseReference: DatabaseReference
+    private lateinit var auth: FirebaseAuth
+    private lateinit var concludeTitle : TextView
+    private var protien: Double = 0.0
+    private  var fat: Double  =0.0
+    private  var carbohydrates: Double  =0.0
+    private  var record: Double =0.0
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_monthly_report)
+        auth = FirebaseAuth.getInstance()
+       concludeTitle = findViewById(R.id.concludeTitle)
+        val currentUser = auth.currentUser
 
+        val userID = currentUser?.uid
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("MonthlyReport").child("2025").child("02")
         val pieChart = findViewById<PieChart>(R.id.pieChart)
+        fetchUserProfile(databaseReference , pieChart)
 
 
-        // Pie Chart setup
-        val pieEntries = listOf(
-            PieEntry(40f, "Protein"),
-            PieEntry(30f, "Carbohydrates"),
-            PieEntry(30f, "Fat")
-        )
-        val pieDataSet = PieDataSet(pieEntries, "Macronutrient Ratio")
-        pieDataSet.colors = ColorTemplate.MATERIAL_COLORS.toList()
-        pieDataSet.valueTextSize = 18f
-        pieDataSet.valueTextColor = Color.BLACK
-        val pieData = PieData(pieDataSet)
-        pieChart.data = pieData
-        pieChart.setEntryLabelTextSize(12f)
-        pieChart.invalidate()
+
 
         val lineChart = findViewById<LineChart>(R.id.lineChart)
 
@@ -79,5 +88,45 @@ class MonthlyReport : AppCompatActivity() {
         yAxis.addLimitLine(limitLine)
 
         lineChart.invalidate()
+    }
+
+    private fun fetchUserProfile(databaseReference: DatabaseReference , pieChart : PieChart) {
+        databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                val report  = dataSnapshot.getValue(Report::class.java)
+               report?.let {
+                   record = it.record.toDouble()
+
+                   protien = it.protein.toDouble()
+
+                   fat = it.fat.toDouble()
+                   carbohydrates = it.carbohydrates.toDouble()
+
+                   val  chartProtien = protien*4 / record *100
+                   val     chartCarbohydrates = carbohydrates *4  / record *100
+                   val    chartFat = (record - protien*4 - carbohydrates *4) /record *100
+
+
+                   // Pie Chart setup
+                   val pieEntries = listOf(
+                       PieEntry(chartProtien.toFloat(), "Protein"),
+                       PieEntry( chartCarbohydrates.toFloat(), "Carbohydrates"),
+                       PieEntry(chartFat.toFloat(), "Fat")
+                   )
+                   val pieDataSet = PieDataSet(pieEntries, "Macronutrient Ratio")
+                   pieDataSet.colors = ColorTemplate.MATERIAL_COLORS.toList()
+                   pieDataSet.valueTextSize = 18f
+                   pieDataSet.valueTextColor = Color.BLACK
+                   val pieData = PieData(pieDataSet)
+                   pieChart.data = pieData
+                   pieChart.setEntryLabelTextSize(12f)
+                   pieChart.invalidate()
+                }
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Log.e("FirebaseError", databaseError.message) // Handle possible errors
+            }
+        })
     }
 }

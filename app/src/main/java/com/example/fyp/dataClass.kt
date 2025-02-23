@@ -118,7 +118,12 @@ data class FoodItem(
 
 )
 
-
+data class Report(
+    val carbohydrates: String = "",
+     val protein : String = "" ,
+    val fat : String = "",
+    val record : String  = ""
+)
 data class FoodAPI(
     val product_name: String,
     val carbohydrates_100g: Double,

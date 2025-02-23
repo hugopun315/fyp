@@ -11,6 +11,7 @@
 
         <!-- 總覽部分 -->
         <TextView
+            android:id="@+id/concludeTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="總覽部分"
