@@ -28,6 +28,8 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import java.time.LocalDate
+
 class MonthlyReport : AppCompatActivity() {
     private lateinit var databaseReference: DatabaseReference
     private lateinit var databaseReference2: DatabaseReference
@@ -75,9 +77,12 @@ class MonthlyReport : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
-
+    fun getCurrentMonth(): Int{
+        val currentDate = LocalDate.now()
+        return currentDate.monthValue
+    }
     private fun setupSpinners() {
-        val months = arrayOf("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
+        val months = arrayOf(""  ,"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
         val years = arrayOf("2025")
 
         val monthAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, months)
@@ -88,7 +93,7 @@ class MonthlyReport : AppCompatActivity() {
         yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         yearSpinner.adapter = yearAdapter
 
-        monthSpinner.setSelection(1) // Default to February
+        monthSpinner.setSelection(getCurrentMonth()) // Default to February
         yearSpinner.setSelection(0) // Default to 2025
     }
 

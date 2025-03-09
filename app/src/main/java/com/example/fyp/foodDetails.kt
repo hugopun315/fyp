@@ -3,6 +3,9 @@ package com.example.fyp
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.InputFilter
+import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -30,6 +33,12 @@ class foodDetails : AppCompatActivity() {
     private var foodPro: String = ""
     private var foodFat: String = ""
     private var foodCal: String = ""
+    private var newFoodCar: String = ""
+    private var newFoodPro: String = ""
+    private var newFoodFat: String = ""
+    private var newFoodCal: String = ""
+    private var newWeight: String = ""
+    private var newQty: String = ""
     private var time: String = ""
     private var date: String = ""
     private var value: String = ""
@@ -47,7 +56,7 @@ class foodDetails : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_food_details)
-        val weight: TextView = findViewById(R.id.weight)
+        val weight: EditText = findViewById(R.id.weight)
         val title: TextView = findViewById(R.id.titleTextView)
         val image: ImageView = findViewById(R.id.foodPic)
         val cal: TextView = findViewById(R.id.Calories)
@@ -60,28 +69,47 @@ class foodDetails : AppCompatActivity() {
         increaseQty = findViewById(R.id.increaseQty)
         quantityEditText = findViewById(R.id.quantity)
 
-
+        quantityEditText.filters = arrayOf(InputFilter { source, start, end, dest, dstart, dend ->
+            val input =
+                (dest.toString() + source.toString()).replace("weight: ", "").replace("g", "")
+                    .trim()
+            if (input.isEmpty() || input.toInt() >= 1) {
+                null // Accept the input
+            } else {
+                "" // Reject the input
+            }
+        })
 
         addButton = findViewById(R.id.addRecord)
         aiButton = findViewById(R.id.AIButton)
         decreaseQty.setOnClickListener {
-            val currentQty = quantityEditText.text.toString().toInt()
+            var currentQty = 0
+            if (quantityEditText.text.toString() == "" || quantityEditText.text.toString() == null) {
+                currentQty = 1
+            } else {
+                currentQty = quantityEditText.text.toString().toInt()
+            }
+
             if (currentQty > 1) {
                 quantityEditText.setText((currentQty - 1).toString())
             }
+
+
         }
         increaseQty.setOnClickListener {
-            val currentQty = quantityEditText.text.toString().toInt()
+            var currentQty = 0
+            if (quantityEditText.text.toString() == "" || quantityEditText.text.toString() == null) {
+                currentQty = 1
+            } else {
+                currentQty = quantityEditText.text.toString().toInt()
+            }
+
             quantityEditText.setText((currentQty + 1).toString())
         }
         val bundle = intent.extras
         if (bundle != null) {
             title.text = bundle.getString("title") ?: "No Title"
-            cal.text = "calories: " + bundle.getString("cal") + " kcal" ?: "0"
-            car.text = "carbohydrates: " + bundle.getString("car") + " g" ?: "0"
-            pro.text = "protein: " + bundle.getString("pro") + " g" ?: "0"
-            fat.text = "fat: " + bundle.getString("fat") + " g" ?: "0"
-            weight.text = "weight: " + bundle.getString("weight") + " g" ?: "0"
+
             key = bundle.getString("key") ?: ""
             imageUrl = bundle.getString("image") ?: ""
             fav = bundle.getString("fav") ?: ""
@@ -99,10 +127,18 @@ class foodDetails : AppCompatActivity() {
             if (brands != "") {
                 brand.text = "brand: " + brands
             }
-
-
+            cal.text = "calories: " + foodCal + " kcal" ?: "0"
+            car.text = "carbohydrates: " + foodCar + " g" ?: "0"
+            pro.text = "protein: " + foodPro + " g" ?: "0"
+            fat.text = "fat: " + foodFat + " g" ?: "0"
+            weight.setText((bundle.getString("weight") ?: "0"))
+            quantityEditText.setText(bundle.getString("qty") ?: "")
             if (value == "remove") {
                 addButton.text = "remove"
+                weight.isEnabled = false
+                quantityEditText.isEnabled = false
+                increaseQty.isEnabled = false
+                decreaseQty.isEnabled = false
             } else if (value == "search") {
                 addButton.visibility = View.INVISIBLE
             }
@@ -120,6 +156,7 @@ class foodDetails : AppCompatActivity() {
         }
 
 
+
         addButton.setOnClickListener {
             if (addButton.text == "remove") {
                 removeFood()
@@ -133,29 +170,150 @@ class foodDetails : AppCompatActivity() {
 
 
             val intent = Intent(context, chatGPTAPI::class.java).apply {
-                putExtra("foodTitle",foodTitle)
-                putExtra("foodCar",foodCar)
-                putExtra("foodPro",foodPro)
-                putExtra("foodFat",foodFat)
-                putExtra("foodCal",foodCal)
+                putExtra("foodTitle", foodTitle)
+                putExtra("foodCar", foodCar)
+                putExtra("foodPro", foodPro)
+                putExtra("foodFat", foodFat)
+                putExtra("foodCal", foodCal)
 
             }
             context.startActivity(intent)
         }
+        weight.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Do nothing
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Do nothing
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                var foodCalValue = foodCal.toDoubleOrNull() ?: 0.0
+                var foodCarValue = foodCar.toDoubleOrNull() ?: 0.0
+                var foodProValue = foodPro.toDoubleOrNull() ?: 0.0
+                var foodFatValue = foodFat.toDoubleOrNull() ?: 0.0
+                var weightValue = weight.text.toString().toDoubleOrNull()?.div(100.0) ?: 0.0
+                newWeight = weightValue.toString()
+                if (foodCalValue != null && foodCarValue != null && foodProValue != null && foodFatValue != null) {
+                    foodCalValue = (foodCalValue * weightValue).roundToTwoDecimalPlaces()
+                    foodCarValue = (foodCarValue * weightValue).roundToTwoDecimalPlaces()
+                    foodProValue = (foodProValue * weightValue).roundToTwoDecimalPlaces()
+                    foodFatValue = (foodFatValue * weightValue).roundToTwoDecimalPlaces()
+                }
+
+
+                if (newQty != "") {
+                    newFoodCal = (foodCalValue * newQty.toDoubleOrNull()!!).toString()
+                    newFoodCar = (foodCarValue * newQty.toDoubleOrNull()!!).toString()
+                    newFoodPro = (foodProValue * newQty.toDoubleOrNull()!!).toString()
+                    newFoodFat = (foodFatValue * newQty.toDoubleOrNull()!!).toString()
+                } else {
+                    newFoodCal = foodCalValue.toString()
+                    newFoodCar = foodCarValue.toString()
+                    newFoodPro = foodProValue.toString()
+                    newFoodFat = foodFatValue.toString()
+                }
+
+
+                cal.text = "calories: " + newFoodCal + " kcal"
+                car.text = "carbohydrates: " + newFoodCar + " g"
+                pro.text = "protein: " + newFoodPro + " g"
+                fat.text = "fat: " + newFoodFat + " g"
+
+            }
+        })
+
+        quantityEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Do nothing
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Do nothing
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                var foodCalValue = foodCal.toDoubleOrNull() ?: 0.0
+                var foodCarValue = foodCar.toDoubleOrNull() ?: 0.0
+                var foodProValue = foodPro.toDoubleOrNull() ?: 0.0
+                var foodFatValue = foodFat.toDoubleOrNull() ?: 0.0
+                if (quantityEditText.text.toString() == null || quantityEditText.text.toString() == "") {
+                    newQty = "1"
+                } else {
+                    newQty = quantityEditText.text.toString()
+                }
+
+
+                var qtyValue = quantityEditText.text.toString().toDoubleOrNull() ?: 1.0
+                foodCalValue = (foodCalValue * qtyValue).roundToTwoDecimalPlaces()
+                foodCarValue = (foodCarValue * qtyValue).roundToTwoDecimalPlaces()
+                foodProValue = (foodProValue * qtyValue).roundToTwoDecimalPlaces()
+                foodFatValue = (foodFatValue * qtyValue).roundToTwoDecimalPlaces()
+
+
+                if (newWeight != "") {
+                    newFoodCal = (foodCalValue * newWeight.toDoubleOrNull()!!).toString()
+                    newFoodCar = (foodCarValue * newWeight.toDoubleOrNull()!!).toString()
+                    newFoodPro = (foodProValue * newWeight.toDoubleOrNull()!!).toString()
+                    newFoodFat = (foodFatValue * newWeight.toDoubleOrNull()!!).toString()
+
+                } else {
+                    newFoodCal = foodCalValue.toString()
+                    newFoodCar = foodCarValue.toString()
+                    newFoodPro = foodProValue.toString()
+                    newFoodFat = foodFatValue.toString()
+                }
+
+
+
+
+                cal.text = "calories: " + newFoodCal + " kcal"
+                car.text = "carbohydrates: " + newFoodCar + " g"
+                pro.text = "protein: " + newFoodPro + " g"
+                fat.text = "fat: " + newFoodFat + " g"
+
+            }
+        })
 
 
     }
 
 
+    fun Double.roundToTwoDecimalPlaces(): Double {
+        return String.format("%.2f", this).toDouble()
+    }
+
     private fun uploadFood() {
         val name = foodTitle
-        val protein = foodPro
-        val carbohydrates = foodCar
-        val fat = foodFat
-        val weight = foodWeight
-        val qty = qty
+        var cal = ""
+        var protein = ""
+        var carbohydrates = ""
+        var fat = ""
+        if (newFoodCal == "") {
+            cal = foodCal
+            protein = foodPro
+            carbohydrates = foodCar
+            fat = foodFat
+        } else {
+            cal = newFoodCal
+            protein = newFoodPro
+            carbohydrates = newFoodCar
+            fat = newFoodFat
+
+        }
+
+        var weight = foodWeight
+        if (newWeight != "" || newWeight != null) {
+            weight = (newWeight.toDoubleOrNull()?.times(100.0)).toString()
+        }
+        var qty = qty
+        if (newQty != "" || newQty != null) {
+            qty = newQty
+        }
+
         val favour = "false"
-        val cal = foodCal
+
         val imageURL = imageUrl
         val foodKey = key
         val date = date
@@ -198,7 +356,7 @@ class foodDetails : AppCompatActivity() {
                         if (task.isSuccessful) {
                             Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
                             // Update total calories
-                            updateTotalCalories(userID, date , "+")
+                            updateTotalCalories(userID, date, "+")
                         }
                     }.addOnFailureListener { e ->
                         Log.e("UploadError", "Error uploading data: ${e.message}")
@@ -244,7 +402,7 @@ class foodDetails : AppCompatActivity() {
         }
     }
 
-    private fun updateTotalCalories(userId: String, date: String, sign : String ) {
+    private fun updateTotalCalories(userId: String, date: String, sign: String) {
         val mealsRef = FirebaseDatabase.getInstance().reference
             .child("Users")
             .child(userId)
@@ -290,7 +448,17 @@ class foodDetails : AppCompatActivity() {
                 val month = dateParts[1]
                 val day = dateParts[2]
 
-                updateMonthReport( userId,year, month , day, totalCalories.toString(), totalProtein.toString() , totalFat.toString(), totalCarbohydrates.toString() , sign)
+                updateMonthReport(
+                    userId,
+                    year,
+                    month,
+                    day,
+                    totalCalories.toString(),
+                    totalProtein.toString(),
+                    totalFat.toString(),
+                    totalCarbohydrates.toString(),
+                    sign
+                )
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
@@ -303,7 +471,6 @@ class foodDetails : AppCompatActivity() {
             putExtra("time", time)
         }
         context.startActivity(intent)
-
 
 
     }
@@ -343,16 +510,23 @@ class foodDetails : AppCompatActivity() {
                     if (mealDate.startsWith("$year-$month")) {
                         for (timeSnapshot in mealSnapshot.children) {
                             for (foodSnapshot in timeSnapshot.child("Food").children) {
-                                record += foodSnapshot.child("calories").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
-                                protein += foodSnapshot.child("protein").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
-                                fat += foodSnapshot.child("fat").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
-                                carbohydrates += foodSnapshot.child("carbohydrates").getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                                record += foodSnapshot.child("calories")
+                                    .getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                                protein += foodSnapshot.child("protein")
+                                    .getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
+                                fat += foodSnapshot.child("fat").getValue(String::class.java)
+                                    ?.toDoubleOrNull() ?: 0.0
+                                carbohydrates += foodSnapshot.child("carbohydrates")
+                                    .getValue(String::class.java)?.toDoubleOrNull() ?: 0.0
                             }
                         }
                     }
                 }
 
-                Log.d("UpdateMonthReport", "Recalculated values - Record: $record, Protein: $protein, Fat: $fat, Carbohydrates: $carbohydrates")
+                Log.d(
+                    "UpdateMonthReport",
+                    "Recalculated values - Record: $record, Protein: $protein, Fat: $fat, Carbohydrates: $carbohydrates"
+                )
 
                 val updates = mapOf(
                     "record" to record.toString(),
@@ -369,7 +543,10 @@ class foodDetails : AppCompatActivity() {
                     if (task.isSuccessful) {
                         Log.d("UpdateMonthReport", "Values updated successfully")
                     } else {
-                        Log.e("UpdateMonthReport", "Failed to update values: ${task.exception?.message}")
+                        Log.e(
+                            "UpdateMonthReport",
+                            "Failed to update values: ${task.exception?.message}"
+                        )
                     }
                 }
             }

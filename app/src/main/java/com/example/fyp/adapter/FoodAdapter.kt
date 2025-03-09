@@ -43,6 +43,7 @@ class FoodAdapter(private val context: Context, private val foodList: List<Food>
                 putExtra("fat", item.fat.toString())
                 putExtra("cal", item.calories.toString())
                 putExtra("weight", item.weight.toString())
+                putExtra("qty", item.qty)
                 putExtra("time", time) // Pass the time extra
                 putExtra("date", date)
                 putExtra("key", item.key)
