@@ -304,11 +304,11 @@ class foodDetails : AppCompatActivity() {
         }
 
         var weight = foodWeight
-        if (newWeight != "" || newWeight != null) {
+        if (newWeight != "" ) {
             weight = (newWeight.toDoubleOrNull()?.times(100.0)).toString()
         }
         var qty = qty
-        if (newQty != "" || newQty != null) {
+        if (newQty != "" ) {
             qty = newQty
         }
 
@@ -467,7 +467,7 @@ class foodDetails : AppCompatActivity() {
         })
 
         val context: Context = this
-        val intent = Intent(this, FindFoodView::class.java).apply {
+        val intent = Intent(this, homeActivity::class.java).apply {
             putExtra("time", time)
         }
         context.startActivity(intent)
