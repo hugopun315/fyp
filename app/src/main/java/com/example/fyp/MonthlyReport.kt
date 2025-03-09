@@ -43,8 +43,9 @@ class MonthlyReport : AppCompatActivity() {
     private var carbohydrates: Double = 0.0
     private var record: Double = 0.0
 
-    private var count: Int = 0
+
     private var numbersOfDay =0
+    private var avgCal =0.0
     private var userProfile: User? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -165,25 +166,37 @@ class MonthlyReport : AppCompatActivity() {
         })
     }
 
+    fun Double.roundToTwoDecimalPlaces(): Double {
+        return String.format("%.2f", this).toDouble()
+    }
+
+
+
     private fun fetchLineChartData(databaseReference: DatabaseReference, lineChart: LineChart, userProfile: User?, details: TextView) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
 
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val lineEntries = mutableListOf<Entry>()
                 numbersOfDay = 0 // Reset count before calculation
-                count = 0 // Reset count before calculation
+
                 for (daySnapshot in dataSnapshot.children) {
                     val day = daySnapshot.key?.toFloatOrNull()
                     val record = daySnapshot.child("record").getValue(String::class.java)?.toFloatOrNull()
                     if (day != null && record != null) {
                         lineEntries.add(Entry(day, record))
                         numbersOfDay += 1
-                        if (record > userProfile?.targetCalories!!) {
-                            count += 1
-                        }
                     }
                 }
 
+                // Calculate average calories
+                val totalCalories = lineEntries.sumByDouble { it.y.toDouble() }
+                val avgCal = (totalCalories / numbersOfDay).roundToTwoDecimalPlaces()
+
+                // Clear existing data and limit lines
+                lineChart.clear()
+                lineChart.axisLeft.removeAllLimitLines()
+
+                // Create new data set
                 val lineDataSet = LineDataSet(lineEntries, "Daily Calorie Intake")
                 lineDataSet.color = ColorTemplate.COLORFUL_COLORS[0]
                 lineDataSet.valueTextSize = 12f
@@ -195,7 +208,14 @@ class MonthlyReport : AppCompatActivity() {
                 lineChart.setScaleEnabled(true)
                 lineChart.setPinchZoom(true)
 
-                // Add a red limit line at Y-axis userProfile?.targetCalories?.toFloat()!!
+                // Add a green limit line for average calories
+                val avgLine = LimitLine(avgCal.toFloat(), "Avg")
+                avgLine.lineWidth = 2f
+                avgLine.lineColor = Color.GREEN
+                avgLine.textColor = Color.GREEN
+                avgLine.textSize = 12f
+
+                // Add a red limit line for target calories
                 val limitLine = LimitLine(userProfile?.targetCalories?.toFloat() ?: 2000f, "Target")
                 limitLine.lineWidth = 2f
                 limitLine.lineColor = Color.RED
@@ -204,6 +224,7 @@ class MonthlyReport : AppCompatActivity() {
 
                 val yAxis = lineChart.axisLeft
                 yAxis.addLimitLine(limitLine)
+                yAxis.addLimitLine(avgLine)
                 yAxis.axisMinimum = 0f // Start Y-axis at 0
                 yAxis.setDrawLabels(true)
                 yAxis.setDrawLimitLinesBehindData(true)
@@ -225,7 +246,7 @@ class MonthlyReport : AppCompatActivity() {
                 lineChart.invalidate()
 
                 if (userProfile != null) {
-                    details.text = "The line chart shows the trend of daily intake, and your calorie target is ${userProfile.targetCalories}, You've exceeded the standard for a total of $count day(s)."
+                    details.text = "The line chart shows the trend of daily intake, your average calories intake is $avgCal, and your calorie target is ${userProfile.targetCalories}."
                 }
 
                 // Call someOtherFunction after data is processed
@@ -237,6 +258,8 @@ class MonthlyReport : AppCompatActivity() {
             }
         })
     }
+
+
 
     private fun fetchUserProfile(databaseReference: DatabaseReference, callback: UserProfileCallback) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
@@ -264,6 +287,7 @@ class MonthlyReport : AppCompatActivity() {
     }
 
     private fun someOtherFunction(userProfile: User?) {
+
         // Access the stored values
         val viewModel: ChatViewModel by viewModels()
         val totalCalories = record
@@ -282,13 +306,15 @@ class MonthlyReport : AppCompatActivity() {
         val target = userProfile?.target ?: ""
         val habit = userProfile?.habit ?: ""
         val sex = userProfile?.sex ?: ""
-        val sendText = "Now have $numbersOfDay day(s) record by the user this month, and then he/she has $count day(s) exceeded the calorie target, which is $userTargetCal in one day. Here are the details of the user:\nsex: $sex\nHeight: $userHeight\nWeight: $userWeight\nAge: $age\nTarget: $target\nHabit: $habit\nHere are the Total three nutrients intake (g) in $numbersOfDay day(s):\nProtein: $protein\nFat: $fat\nCarbohydrates: $carbohydrates\n" +
+        val sendText = "Now have $numbersOfDay day(s) recorded this month,my average Calories in this month is $avgCal and then my target calories is $userTargetCal in one day. Here are the details of my information :\nsex: $sex\nHeight: $userHeight\nWeight: $userWeight\nAge: $age\nTarget: To $target\nHabit: $habit In a week\nHere are the Total three nutrients intake (g) in $numbersOfDay day(s):\nProtein: $protein\nFat: $fat\nCarbohydrates: $carbohydrates\n" +
                 "You have 2 tasks:\n" +
                 "1. Summary: summarises the diet for the whole month, you can summary of objectives and data captured. but IN SHORT\n" +
-                "2. Suggestions for the future: Provide some suggestions for future diets based on the user's goals and past diets, you can make recommendations on user data, objectives, and ingested data. But IN SHORT."
+                "2. Suggestions: provide some suggestions for future diets based on my goals and past diets,for example According to my information, recommend the optimal ratio of the three nutrients to be consumed. Also you can make suggestions based on user profile, goals and intake information But IN SHORT."
 
         // Send the message and update the recommend TextView with the AI response
         viewModel.sendAndDisplayMessage(sendText, recommend)
+
+
     }
 }
 

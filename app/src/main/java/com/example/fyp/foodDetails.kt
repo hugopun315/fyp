@@ -477,7 +477,7 @@ class foodDetails : AppCompatActivity() {
         })
 
         val context: Context = this
-        val intent = Intent(this, homeActivity::class.java).apply {
+        val intent = Intent(this, FindFoodView::class.java).apply {
             putExtra("time", time)
         }
         context.startActivity(intent)
