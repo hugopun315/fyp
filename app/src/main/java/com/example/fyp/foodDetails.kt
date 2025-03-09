@@ -175,7 +175,17 @@ class foodDetails : AppCompatActivity() {
                 putExtra("foodPro", foodPro)
                 putExtra("foodFat", foodFat)
                 putExtra("foodCal", foodCal)
-
+                if(newQty == "" && newWeight ==""){
+                    putExtra("weight", "100")
+                }else{
+                    if(newQty!= "" && newWeight !=""){
+                        putExtra("weight", (newWeight.toDoubleOrNull()!! * 100.0 * newQty.toDoubleOrNull()!!).toString() )
+                    }else if(newQty!= "" && newWeight ==""){
+                        putExtra("weight", ( foodWeight.toDoubleOrNull()!! * newQty.toDoubleOrNull()!!).toString() )
+                    }else if(newQty== "" && newWeight !=""){
+                        putExtra("weight", ( newWeight.toDoubleOrNull()!! * 100.0 ).toString() )
+                    }
+                }
             }
             context.startActivity(intent)
         }

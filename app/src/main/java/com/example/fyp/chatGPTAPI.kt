@@ -33,7 +33,8 @@ class chatGPTAPI : AppCompatActivity() {
             val foodPro = bundle.getString("foodPro") ?: "null"
             val foodFat = bundle.getString("foodFat") ?: "null"
             val foodCal = bundle.getString("foodCal") ?: "null"
-            askForComment(foodTitle, foodCar, foodPro, foodFat, foodCal, binding, viewModel)
+            val weight = bundle.getString("weight") ?: "null"
+            askForComment(foodTitle, foodCar, foodPro, foodFat, foodCal, weight,  binding, viewModel)
         }
 
         val calories = UserProfileManager.caloriesConsumedToday
@@ -63,7 +64,7 @@ class chatGPTAPI : AppCompatActivity() {
 
         binding.presetButton1.setOnClickListener {
             var message =
-                "my targetCalories is ${profile?.targetCalories} and Current time is ${getCurrentTime()}, "
+                "my targetCalories is ${profile?.targetCalories} and Current time is ${getCurrentTime()} and I want to ${profile?.target}, "
             if (calories != "0.0") {
                 message += "I have already Consumed $calories kals, $protein g protein, $fat g fat and $carbohydrates g carbohydrates, help me to design a menu to achieve the target based on the current time period. Reply in short."
             } else {
@@ -81,16 +82,17 @@ fun askForComment(
     protein: String,
     fat: String,
     foodCalories: String,
+    weight : String,
     binding: ActivityChatGptapiBinding,
     viewModel: ChatViewModel
 ) {
     var message =
-        "Here are the information of the food $title for 100g, carbohydrates: $carbohydrates, fat: $fat, protein: $protein, calories: $foodCalories. "
+        "Here are the information of the food $title for 100g, carbohydrates: $carbohydrates, fat: $fat, protein: $protein, calories: $foodCalories. I want to intake for $weight grams. My targetCalories is ${ UserProfileManager.myProfile?.targetCalories}, and I want to ${ UserProfileManager.myProfile?.target}. "
     if (    UserProfileManager.caloriesConsumedToday!= "0.0") {
-        message += "I have already Consumed ${UserProfileManager.caloriesConsumedToday} kals, ${UserProfileManager.proteinConsumedToday} g protein, ${UserProfileManager.fatConsumedToday} g fat and ${UserProfileManager.carbohydratesConsumedToday} g carbohydrates. Give me a comment, should I intake this food? Reply in short"
-    }else{
-        message +="Give me a comment, should I intake this food? Reply in short"
+        message += "And I have already Consumed ${UserProfileManager.caloriesConsumedToday} kals, ${UserProfileManager.proteinConsumedToday} g protein, ${UserProfileManager.fatConsumedToday} g fat and ${UserProfileManager.carbohydratesConsumedToday} g carbohydrates."
     }
+        message +=" Give me a comment, should I intake this food? Reply in short"
+
     viewModel.sendMessage(message)
     binding.messageInput.text.clear()
 }
