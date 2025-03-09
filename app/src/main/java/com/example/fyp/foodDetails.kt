@@ -214,15 +214,15 @@ class foodDetails : AppCompatActivity() {
 
 
                 if (newQty != "") {
-                    newFoodCal = (foodCalValue * newQty.toDoubleOrNull()!!).toString()
-                    newFoodCar = (foodCarValue * newQty.toDoubleOrNull()!!).toString()
-                    newFoodPro = (foodProValue * newQty.toDoubleOrNull()!!).toString()
-                    newFoodFat = (foodFatValue * newQty.toDoubleOrNull()!!).toString()
+                    newFoodCal = (foodCalValue * newQty.toDoubleOrNull()!!).roundToTwoDecimalPlaces().toString()
+                    newFoodCar = (foodCarValue * newQty.toDoubleOrNull()!!).roundToTwoDecimalPlaces().toString()
+                    newFoodPro = (foodProValue * newQty.toDoubleOrNull()!!).roundToTwoDecimalPlaces().toString()
+                    newFoodFat = (foodFatValue * newQty.toDoubleOrNull()!!).roundToTwoDecimalPlaces().toString()
                 } else {
-                    newFoodCal = foodCalValue.toString()
-                    newFoodCar = foodCarValue.toString()
-                    newFoodPro = foodProValue.toString()
-                    newFoodFat = foodFatValue.toString()
+                    newFoodCal = foodCalValue.roundToTwoDecimalPlaces().toString()
+                    newFoodCar = foodCarValue.roundToTwoDecimalPlaces().toString()
+                    newFoodPro = foodProValue.roundToTwoDecimalPlaces().toString()
+                    newFoodFat = foodFatValue.roundToTwoDecimalPlaces().toString()
                 }
 
 
@@ -263,16 +263,16 @@ class foodDetails : AppCompatActivity() {
 
 
                 if (newWeight != "") {
-                    newFoodCal = (foodCalValue * newWeight.toDoubleOrNull()!!).toString()
-                    newFoodCar = (foodCarValue * newWeight.toDoubleOrNull()!!).toString()
-                    newFoodPro = (foodProValue * newWeight.toDoubleOrNull()!!).toString()
-                    newFoodFat = (foodFatValue * newWeight.toDoubleOrNull()!!).toString()
+                    newFoodCal = (foodCalValue * newWeight.toDoubleOrNull()!!).roundToTwoDecimalPlaces().toString()
+                    newFoodCar = (foodCarValue * newWeight.toDoubleOrNull()!!).roundToTwoDecimalPlaces().toString()
+                    newFoodPro = (foodProValue * newWeight.toDoubleOrNull()!!).roundToTwoDecimalPlaces().toString()
+                    newFoodFat = (foodFatValue * newWeight.toDoubleOrNull()!!).roundToTwoDecimalPlaces().toString()
 
                 } else {
-                    newFoodCal = foodCalValue.toString()
-                    newFoodCar = foodCarValue.toString()
-                    newFoodPro = foodProValue.toString()
-                    newFoodFat = foodFatValue.toString()
+                    newFoodCal = foodCalValue.roundToTwoDecimalPlaces().toString()
+                    newFoodCar = foodCarValue.roundToTwoDecimalPlaces().toString()
+                    newFoodPro = foodProValue.roundToTwoDecimalPlaces().toString()
+                    newFoodFat = foodFatValue.roundToTwoDecimalPlaces().toString()
                 }
 
 
