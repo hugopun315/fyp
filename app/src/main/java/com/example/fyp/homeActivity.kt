@@ -176,6 +176,7 @@ class homeActivity : AppCompatActivity() {
         searchButtonS1.setOnClickListener {
             val intent = Intent(this, chatGPTAPI::class.java)
             startActivity(intent)
+
         }
         searchButtonS2.setOnClickListener {
             val intent = Intent(this, chatGPTAPI::class.java)

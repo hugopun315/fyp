@@ -28,7 +28,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import java.time.LocalDate
+import java.util.Calendar
 
 class MonthlyReport : AppCompatActivity() {
     private lateinit var databaseReference: DatabaseReference
@@ -78,9 +78,9 @@ class MonthlyReport : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>) {}
         }
     }
-    fun getCurrentMonth(): Int{
-        val currentDate = LocalDate.now()
-        return currentDate.monthValue
+    fun getCurrentMonth(): Int {
+        val calendar = Calendar.getInstance()
+        return calendar.get(Calendar.MONTH) + 1 // Calendar.MONTH is zero-based, so add 1
     }
     private fun setupSpinners() {
         val months = arrayOf(""  ,"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12")
@@ -187,11 +187,11 @@ class MonthlyReport : AppCompatActivity() {
                         numbersOfDay += 1
                     }
                 }
-
+                Log.e("before cal", avgCal.toString())
                 // Calculate average calories
                 val totalCalories = lineEntries.sumByDouble { it.y.toDouble() }
                 val avgCal = (totalCalories / numbersOfDay).roundToTwoDecimalPlaces()
-
+                Log.e("after cal", avgCal.toString())
                 // Clear existing data and limit lines
                 lineChart.clear()
                 lineChart.axisLeft.removeAllLimitLines()
@@ -296,7 +296,7 @@ class MonthlyReport : AppCompatActivity() {
         val totalCarbohydrates = carbohydrates
 
         val recommend = findViewById<TextView>(R.id.recommend)
-
+        val avgCal = (totalCalories / numbersOfDay).roundToTwoDecimalPlaces()
         // Use userProfile data
         val targetCalories = userProfile?.targetCalories ?: 0.0
         val userTargetCal = userProfile?.targetCalories
@@ -306,11 +306,13 @@ class MonthlyReport : AppCompatActivity() {
         val target = userProfile?.target ?: ""
         val habit = userProfile?.habit ?: ""
         val sex = userProfile?.sex ?: ""
+        Log.e("before message", avgCal.toString()) // Handle possible errors
         val sendText = "Now have $numbersOfDay day(s) recorded this month,my average Calories in this month is $avgCal and then my target calories is $userTargetCal in one day. Here are the details of my information :\nsex: $sex\nHeight: $userHeight\nWeight: $userWeight\nAge: $age\nTarget: To $target\nHabit: $habit In a week\nHere are the Total three nutrients intake (g) in $numbersOfDay day(s):\nProtein: $protein\nFat: $fat\nCarbohydrates: $carbohydrates\n" +
                 "You have 2 tasks:\n" +
                 "1. Summary: summarises the diet for the whole month, you can summary of objectives and data captured. but IN SHORT\n" +
                 "2. Suggestions: provide some suggestions for future diets based on my goals and past diets,for example According to my information, recommend the optimal ratio of the three nutrients to be consumed. Also you can make suggestions based on user profile, goals and intake information But IN SHORT."
 
+        Log.e("after message", avgCal.toString())
         // Send the message and update the recommend TextView with the AI response
         viewModel.sendAndDisplayMessage(sendText, recommend)
 
