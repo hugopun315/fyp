@@ -40,6 +40,7 @@ class homeActivity : AppCompatActivity() {
     private lateinit var CPView: TextView
     private lateinit var CFView: TextView
     private lateinit var CCView: TextView
+    private lateinit var targetView: TextView
     private lateinit var databaseReference: DatabaseReference
 
 
@@ -88,12 +89,12 @@ class homeActivity : AppCompatActivity() {
         breakfastButton = findViewById(R.id.bButton)
         lunchButton = findViewById(R.id.lButton)
         dinnerButton = findViewById(R.id.dButton)
-        TDEEView = findViewById(R.id.TDEE)
-        CCTView = findViewById(R.id.CCT)
-        CPView = findViewById(R.id.CProtein)
-        CFView = findViewById(R.id.CFat)
-        CCView = findViewById(R.id.CCarbohydrates)
-
+       targetView = findViewById(R.id.targetInput_input)
+        CCTView = findViewById(R.id.calories_input)
+        TDEEView = findViewById(R.id.targetCalorie_input)
+        CPView = findViewById(R.id.protein_input)
+        CFView = findViewById(R.id.fat_input)
+        CCView = findViewById(R.id.carbs_input)
         // Set Layout Managers
         breakfastRecyclerView.layoutManager = LinearLayoutManager(this)
         lunchRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -226,7 +227,9 @@ class homeActivity : AppCompatActivity() {
                     UserProfileManager.myProfile = userProfile
                     val profile = UserProfileManager.myProfile
                     UserProfileManager.targetCalories = profile?.targetCalories!!
-                    TDEEView.text = "Your target calories : " + UserProfileManager.targetCalories + " kals "
+                    TDEEView.text = UserProfileManager.targetCalories.toString()
+                    UserProfileManager.target = profile?.target!!
+                    targetView.text=   "Target: " +UserProfileManager.target
                 }
             }
 
@@ -242,7 +245,7 @@ class homeActivity : AppCompatActivity() {
                 val record = dataSnapshot.getValue(String::class.java)
                 record?.let {
                     UserProfileManager.caloriesConsumedToday = it
-                    CCTView.text = "Calories Consumed today : $it kals "
+                    CCTView.text = "$it kals"
                 }
             }
 
@@ -258,7 +261,7 @@ class homeActivity : AppCompatActivity() {
                 val protein = dataSnapshot.getValue(String::class.java)
                 protein?.let {
                     UserProfileManager.proteinConsumedToday = it
-                    CPView.text = "Protein Consumed today : $it g "
+                    CPView.text = "$it g"
                 }
             }
 
@@ -274,7 +277,7 @@ class homeActivity : AppCompatActivity() {
                 val record = dataSnapshot.getValue(String::class.java)
                 record?.let {
                     UserProfileManager.fatConsumedToday = it
-                    CFView.text = "Fat Consumed today : $it g "
+                    CFView.text = "$it g"
                 }
             }
 
@@ -290,7 +293,7 @@ class homeActivity : AppCompatActivity() {
                 val record = dataSnapshot.getValue(String::class.java)
                 record?.let {
                     UserProfileManager.carbohydratesConsumedToday = it
-                    CCView.text = "Carbohydrates Consumed today : $it g "
+                    CCView.text = "$it g"
                 }
             }
 

@@ -18,6 +18,8 @@
         android:textColor="@android:color/black"
         android:padding="16dp" />
 
+
+
     <!-- ListView to display items -->
     <ListView
         android:id="@+id/listView"
