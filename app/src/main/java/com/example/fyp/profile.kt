@@ -103,7 +103,7 @@ class profile : AppCompatActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val userProfile = dataSnapshot.getValue(User::class.java)
                 userProfile?.let {
-                    headerText.text = "Your body data:\nHeight: ${it.height} cm\nWeight: ${it.weight} KG\nTarget: ${it.target}\nTDEE: ${it.tdee} kcal\n\nChoose a function below"
+                    headerText.text = "Your body data:\nHeight: ${it.height} cm\nWeight: ${it.weight} KG\nTarget: ${it.target}\nTDEE: ${it.tdee} kcal\nTarget calories: ${it.targetCalories}\n\nChoose a function below"
                 }
             }
 

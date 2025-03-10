@@ -58,7 +58,7 @@ class homeActivity : AppCompatActivity() {
         val userID = currentUser?.uid
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("profile")
-        fetchUserTDEE(databaseReference)
+        fetchUserTarget(databaseReference)
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("record")
         fetchUserCCT(databaseReference)
@@ -217,7 +217,7 @@ class homeActivity : AppCompatActivity() {
 
     }
 
-    private fun fetchUserTDEE(databaseReference: DatabaseReference) {
+    private fun fetchUserTarget(databaseReference: DatabaseReference) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val userProfile = dataSnapshot.getValue(User::class.java)
@@ -225,8 +225,8 @@ class homeActivity : AppCompatActivity() {
                 userProfile?.let {
                     UserProfileManager.myProfile = userProfile
                     val profile = UserProfileManager.myProfile
-                    UserProfileManager.tdee = profile?.tdee.toString()
-                    TDEEView.text = "Your Total Daily Energy Expenditure : " + UserProfileManager.tdee + " kals "
+                    UserProfileManager.targetCalories = profile?.targetCalories!!
+                    TDEEView.text = "Your target calories : " + UserProfileManager.targetCalories + " kals "
                 }
             }
 

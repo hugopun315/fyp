@@ -194,4 +194,6 @@ object UserProfileManager {
     var proteinConsumedToday: String? = null
     var fatConsumedToday: String? = null
     var carbohydratesConsumedToday: String? = null
+    var target : String? = null
+    var targetCalories: Double = 0.0
 }
