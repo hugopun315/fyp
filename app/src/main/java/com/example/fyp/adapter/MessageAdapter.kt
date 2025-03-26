@@ -37,6 +37,7 @@ class MessageAdapter : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() 
                 binding.messageText.text = message.content
                 binding.messageText.visibility = View.VISIBLE
                 binding.userText.visibility = View.GONE
+
             }
         }
     }

@@ -3,8 +3,10 @@ package com.example.fyp
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.RadioGroup
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -99,6 +101,8 @@ class createAccount : AppCompatActivity() {
 
 
         createButton.setOnClickListener {
+            val loadingProgressBar: ProgressBar = findViewById(R.id.loadingProgressBar)
+            loadingProgressBar.visibility = View.VISIBLE // Show loading indicator
             /*
             val intent = Intent(this,loginActivity::class.java)
             startActivity(intent)
@@ -128,17 +132,17 @@ class createAccount : AppCompatActivity() {
                         }
                         var TDEE = 0.0
                         when (selectedHabit){
-                            "No Exercise" -> TDEE = BMR * 1.2
-                            "Light Exercise" -> TDEE =BMR * 1.4
-                            "Middle Exercise" -> TDEE =BMR * 1.6
-                            "Heavy Exercise" -> TDEE =BMR * 1.8
-                            "Very Heavy Exercise" -> TDEE =BMR * 2.0
+                            "No Exercise" -> TDEE = (BMR * 1.2).roundToTwoDecimalPlaces()
+                            "Light Exercise" -> TDEE = (BMR * 1.4).roundToTwoDecimalPlaces()
+                            "Middle Exercise" -> TDEE = (BMR * 1.6).roundToTwoDecimalPlaces()
+                            "Heavy Exercise" -> TDEE =  (BMR * 1.8).roundToTwoDecimalPlaces()
+                            "Very Heavy Exercise" -> TDEE = (BMR * 2.0).roundToTwoDecimalPlaces()
                         }
                         var targetCalories = 0.0
                         when (selectedTarget){
-                            "Lose Weight"-> targetCalories = TDEE * 0.75
-                            "Gain Weight" ->  targetCalories = TDEE * 1.1
-                            "Maintain Weight" -> targetCalories =TDEE
+                            "Lose Weight"-> targetCalories = (TDEE * 0.75).roundToTwoDecimalPlaces()
+                            "Gain Weight" ->  targetCalories = (TDEE * 1.1).roundToTwoDecimalPlaces()
+                            "Maintain Weight" -> targetCalories = (TDEE).roundToTwoDecimalPlaces()
                         }
 
 
@@ -146,6 +150,8 @@ class createAccount : AppCompatActivity() {
                        uploadData(user)
                         val intent = Intent(this, homeActivity::class.java)
                         startActivity(intent)
+
+
                         finish()
                     } else {
                         // If sign in fails, display a message to the user.
@@ -161,6 +167,10 @@ class createAccount : AppCompatActivity() {
 
         }
 
+    }
+
+    fun Double.roundToTwoDecimalPlaces(): Double {
+        return String.format("%.2f", this).toDouble()
     }
 
     private fun uploadData(user : User) {

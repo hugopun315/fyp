@@ -174,7 +174,6 @@ class MonthlyReport : AppCompatActivity() {
 
     private fun fetchLineChartData(databaseReference: DatabaseReference, lineChart: LineChart, userProfile: User?, details: TextView) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
-
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val lineEntries = mutableListOf<Entry>()
                 numbersOfDay = 0 // Reset count before calculation
@@ -190,7 +189,7 @@ class MonthlyReport : AppCompatActivity() {
                 Log.e("before cal", avgCal.toString())
                 // Calculate average calories
                 val totalCalories = lineEntries.sumByDouble { it.y.toDouble() }
-                val avgCal = (totalCalories / numbersOfDay).roundToTwoDecimalPlaces()
+                val avgCal = if (numbersOfDay > 0) (totalCalories / numbersOfDay).roundToTwoDecimalPlaces() else 0.0
                 Log.e("after cal", avgCal.toString())
                 // Clear existing data and limit lines
                 lineChart.clear()
@@ -216,16 +215,24 @@ class MonthlyReport : AppCompatActivity() {
                 avgLine.textSize = 12f
 
                 // Add a red limit line for target calories
-                val limitLine = LimitLine(userProfile?.targetCalories?.toFloat() ?: 2000f, "Target")
+                val targetCalories = userProfile?.targetCalories?.toFloat() ?: 2000f
+                val limitLine = LimitLine(targetCalories, "Target")
                 limitLine.lineWidth = 2f
                 limitLine.lineColor = Color.RED
                 limitLine.textColor = Color.RED
                 limitLine.textSize = 12f
+                Log.d("chart ", "Send button clicked with message: ${limitLine.limit}")
 
                 val yAxis = lineChart.axisLeft
                 yAxis.addLimitLine(limitLine)
                 yAxis.addLimitLine(avgLine)
                 yAxis.axisMinimum = 0f // Start Y-axis at 0
+
+                // Ensure the Y-axis range includes the target calories
+                val maxDataValue = if (lineEntries.isNotEmpty()) lineEntries.maxOf { it.y } else 0f
+                val maxValue = maxOf(maxDataValue, targetCalories, avgCal.toFloat()) * 1.1f // Add 10% padding
+                yAxis.axisMaximum = maxValue // Set the maximum Y-axis value to include the target
+
                 yAxis.setDrawLabels(true)
                 yAxis.setDrawLimitLinesBehindData(true)
                 yAxis.valueFormatter = object : ValueFormatter() {

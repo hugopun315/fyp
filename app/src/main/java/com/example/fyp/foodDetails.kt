@@ -481,7 +481,7 @@ class foodDetails : AppCompatActivity() {
             putExtra("time", time)
         }
         context.startActivity(intent)
-
+        finish()
 
     }
 

@@ -54,7 +54,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/fav_icon" />
+                    app:srcCompat="@drawable/fav_icon"
+                    android:visibility="invisible"/>
             </androidx.constraintlayout.widget.ConstraintLayout> <!-- end of top bar -->
 
             <ImageView

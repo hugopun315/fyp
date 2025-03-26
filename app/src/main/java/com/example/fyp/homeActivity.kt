@@ -26,8 +26,8 @@ class homeActivity : AppCompatActivity() {
     private lateinit var breakfastRecyclerView: RecyclerView
     private lateinit var lunchRecyclerView: RecyclerView
     private lateinit var dinnerRecyclerView: RecyclerView
-    private lateinit var searchButtonS1: ImageView
-    private lateinit var searchButtonS2: TextView
+    private lateinit var aiButtonS1: ImageView
+    private lateinit var aiButtonS2: TextView
     private lateinit var profileButtonP1: ImageView
     private lateinit var profileButtonP2: TextView
     private lateinit var breakfastButton: Button
@@ -58,6 +58,81 @@ class homeActivity : AppCompatActivity() {
         val day = getCurrentDay()
         val userID = currentUser?.uid
 
+
+
+
+        // Initialize RecyclerViews
+        breakfastRecyclerView = findViewById(R.id.bList)
+        lunchRecyclerView = findViewById(R.id.lList)
+        dinnerRecyclerView = findViewById(R.id.dList)
+        aiButtonS1 = findViewById(R.id.imageViewAI)
+        aiButtonS2 = findViewById(R.id.textViewAI)
+        profileButtonP1 = findViewById(R.id.imageViewProfile)
+        profileButtonP2 = findViewById(R.id.textViewProfile)
+        breakfastButton = findViewById(R.id.bButton)
+        lunchButton = findViewById(R.id.lButton)
+        dinnerButton = findViewById(R.id.dButton)
+       targetView = findViewById(R.id.targetInput_input)
+        CCTView = findViewById(R.id.calories_input)
+        TDEEView = findViewById(R.id.targetCalorie_input)
+        CPView = findViewById(R.id.protein_input)
+        CFView = findViewById(R.id.fat_input)
+        CCView = findViewById(R.id.carbs_input)
+        // Set Layout Managers
+        breakfastRecyclerView.layoutManager = LinearLayoutManager(this)
+        lunchRecyclerView.layoutManager = LinearLayoutManager(this)
+        dinnerRecyclerView.layoutManager = LinearLayoutManager(this)
+
+
+
+        getData(userID!!, todayDate)
+        getFoodItems(userID!! , todayDate)
+        // Set up click listeners for buttons
+        aiButtonS1.setOnClickListener {
+            val intent = Intent(this, chatGPTAPI::class.java)
+            startActivity(intent)
+
+        }
+        aiButtonS2.setOnClickListener {
+            val intent = Intent(this, chatGPTAPI::class.java)
+            startActivity(intent)
+        }
+        profileButtonP1.setOnClickListener {
+            val intent = Intent(this, profile::class.java)
+            startActivity(intent)
+        }
+        profileButtonP2.setOnClickListener {
+            val intent = Intent(this, profile::class.java)
+            startActivity(intent)
+        }
+        breakfastButton.setOnClickListener {
+            val context: Context = this
+            val intent = Intent(this, FindFoodView::class.java).apply {
+                putExtra("time", "breakfast")
+            }
+            context.startActivity(intent)
+        }
+
+        lunchButton.setOnClickListener {
+            val context: Context = this
+            val intent = Intent(this, FindFoodView::class.java).apply {
+                putExtra("time", "lunch")
+            }
+            context.startActivity(intent)
+        }
+
+        dinnerButton.setOnClickListener {
+            val context: Context = this
+            val intent = Intent(this, FindFoodView::class.java).apply {
+                putExtra("time", "dinner")
+            }
+            context.startActivity(intent)
+        }
+
+
+    }
+
+    fun getData(userID: String , todayDate: String){
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("profile")
         fetchUserTarget(databaseReference)
 
@@ -75,31 +150,9 @@ class homeActivity : AppCompatActivity() {
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("carbohydrates")
         fetchUserCCarbohydrates(databaseReference)
+    }
 
-
-
-        // Initialize RecyclerViews
-        breakfastRecyclerView = findViewById(R.id.bList)
-        lunchRecyclerView = findViewById(R.id.lList)
-        dinnerRecyclerView = findViewById(R.id.dList)
-        searchButtonS1 = findViewById(R.id.imageViewSearch)
-        searchButtonS2 = findViewById(R.id.textViewSearch)
-        profileButtonP1 = findViewById(R.id.imageViewProfile)
-        profileButtonP2 = findViewById(R.id.textViewProfile)
-        breakfastButton = findViewById(R.id.bButton)
-        lunchButton = findViewById(R.id.lButton)
-        dinnerButton = findViewById(R.id.dButton)
-       targetView = findViewById(R.id.targetInput_input)
-        CCTView = findViewById(R.id.calories_input)
-        TDEEView = findViewById(R.id.targetCalorie_input)
-        CPView = findViewById(R.id.protein_input)
-        CFView = findViewById(R.id.fat_input)
-        CCView = findViewById(R.id.carbs_input)
-        // Set Layout Managers
-        breakfastRecyclerView.layoutManager = LinearLayoutManager(this)
-        lunchRecyclerView.layoutManager = LinearLayoutManager(this)
-        dinnerRecyclerView.layoutManager = LinearLayoutManager(this)
-
+    fun getFoodItems(userID: String , todayDate: String){
         val breakfastDataList = ArrayList<Food>()
         val lunchDataList = ArrayList<Food>()
         val breakfastAdapter = FoodAdapter(this, breakfastDataList, "breakfast", todayDate , "remove")
@@ -109,7 +162,6 @@ class homeActivity : AppCompatActivity() {
         val dinnerDataList = ArrayList<Food>()
         val dinnerAdapter = FoodAdapter(this, dinnerDataList, "dinner",todayDate, "remove")
         dinnerRecyclerView.adapter = dinnerAdapter
-
         // Fetch breakfast food items
         val breakfastDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(todayDate).child("breakfast").child("Food")
         eventListener = object : ValueEventListener {
@@ -173,49 +225,47 @@ class homeActivity : AppCompatActivity() {
         }
         dinnerDatabaseReference.addValueEventListener(dinnerEventListener) // Add the listener to the reference
 
-        // Set up click listeners for buttons
-        searchButtonS1.setOnClickListener {
-            val intent = Intent(this, chatGPTAPI::class.java)
-            startActivity(intent)
+    }
 
-        }
-        searchButtonS2.setOnClickListener {
-            val intent = Intent(this, chatGPTAPI::class.java)
-            startActivity(intent)
-        }
-        profileButtonP1.setOnClickListener {
-            val intent = Intent(this, profile::class.java)
-            startActivity(intent)
-        }
-        profileButtonP2.setOnClickListener {
-            val intent = Intent(this, profile::class.java)
-            startActivity(intent)
-        }
-        breakfastButton.setOnClickListener {
-            val context: Context = this
-            val intent = Intent(this, FindFoodView::class.java).apply {
-                putExtra("time", "breakfast")
-            }
-            context.startActivity(intent)
-        }
+    override fun onRestart() {
+        super.onRestart()
+        auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+        val todayDate = getCurrentDate()
+        val year = getCurrentYear()
+        val month = getCurrentMonth()
+        val day = getCurrentDay()
+        val userID = currentUser?.uid
 
-        lunchButton.setOnClickListener {
-            val context: Context = this
-            val intent = Intent(this, FindFoodView::class.java).apply {
-                putExtra("time", "lunch")
-            }
-            context.startActivity(intent)
-        }
+        getData(userID!!, todayDate)
+        getFoodItems(userID!!, todayDate)
+    }
 
-        dinnerButton.setOnClickListener {
-            val context: Context = this
-            val intent = Intent(this, FindFoodView::class.java).apply {
-                putExtra("time", "dinner")
-            }
-            context.startActivity(intent)
-        }
+    override fun onStart() {
+        super.onStart()
+        auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+        val todayDate = getCurrentDate()
+        val year = getCurrentYear()
+        val month = getCurrentMonth()
+        val day = getCurrentDay()
+        val userID = currentUser?.uid
 
+        getData(userID!!, todayDate)
+        getFoodItems(userID!!, todayDate)
+    }
+    override fun onResume() {
+        super.onResume()
+        auth = FirebaseAuth.getInstance()
+        val currentUser = auth.currentUser
+        val todayDate = getCurrentDate()
+        val year = getCurrentYear()
+        val month = getCurrentMonth()
+        val day = getCurrentDay()
+        val userID = currentUser?.uid
 
+        getData(userID!!, todayDate)
+        getFoodItems(userID!!, todayDate)
     }
 
     private fun fetchUserTarget(databaseReference: DatabaseReference) {

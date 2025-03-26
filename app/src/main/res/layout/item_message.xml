@@ -28,4 +28,13 @@
         android:padding="10dp"
         android:gravity="end"
         android:layout_gravity="end" />
+
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="150dp"
+        android:layout_marginRight="150dp"
+        android:visibility="gone"
+        android:layout_gravity="center" />
 </LinearLayout>

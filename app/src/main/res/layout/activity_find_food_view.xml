@@ -28,6 +28,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="8dp"/>
 
+
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/search_bar" />
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -119,31 +129,6 @@
                     android:textSize="10sp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/cartBtn"
-                android:clickable="true"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <ImageView
-                    android:id="@+id/imageViewSearch"
-                    android:clickable="true"
-                    android:layout_width="22dp"
-                    android:layout_height="22dp"
-                    app:srcCompat="@drawable/search" />
-
-                <TextView
-                    android:id="@+id/textViewSearch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Search"
-                    android:textAlignment="center"
-                    android:textColor="@color/white"
-                    android:textSize="10sp" />
-            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -153,16 +138,16 @@
                 android:orientation="vertical">
 
                 <ImageView
-                    android:id="@+id/imageView43"
+                    android:id="@+id/imageViewAI"
                     android:layout_width="22dp"
                     android:layout_height="22dp"
-                    app:srcCompat="@drawable/camera" />
+                    app:srcCompat="@drawable/ic_ai" />
 
                 <TextView
-                    android:id="@+id/textView83"
+                    android:id="@+id/textViewAI"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Camera"
+                    android:text="AI assistant"
                     android:textAlignment="center"
                     android:textColor="@color/white"
                     android:textSize="10sp" />

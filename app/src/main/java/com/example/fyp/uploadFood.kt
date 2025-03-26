@@ -7,9 +7,11 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,7 +49,7 @@ class uploadFood : AppCompatActivity() {
         calEditText.text = "0"
         weightEditText.text = "0"
         qtyEditText.text = "1"
-        weightEditText.text = "1"
+        weightEditText.text = "100"
 
         // Initialize ImageView
         image = findViewById(R.id.uploadImage)
@@ -75,6 +77,8 @@ class uploadFood : AppCompatActivity() {
 
         // Set OnClickListener for Upload Button
         uploadButton.setOnClickListener {
+            val loadingProgressBar: ProgressBar = findViewById(R.id.loadingProgressBar)
+            loadingProgressBar.visibility = View.VISIBLE // Show loading indicator
             saveData()
         }
 
@@ -157,6 +161,7 @@ class uploadFood : AppCompatActivity() {
                         Toast.makeText(this, "Saved", Toast.LENGTH_SHORT).show()
                         val intent = Intent(this, homeActivity::class.java)
                         startActivity(intent)
+                        finish()
                     }
                 }.addOnFailureListener { e ->
                     Log.e("UploadError", "Error uploading data: ${e.message}")

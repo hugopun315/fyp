@@ -4,9 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -36,6 +38,8 @@ class FindFoodView : AppCompatActivity() {
     private lateinit var eventListener: ValueEventListener
     private lateinit var homeButton1: ImageView
     private lateinit var homeButton2: TextView
+    private lateinit var aiButton1: ImageView
+    private lateinit var aiButton2: TextView
     private lateinit var profileButtonP1: ImageView
     private lateinit var profileButtonP2: TextView
     private lateinit var searchButton: Button
@@ -75,6 +79,8 @@ class FindFoodView : AppCompatActivity() {
         homeButton2 = findViewById(R.id.textViewHome)
         profileButtonP1 = findViewById(R.id.imageViewProfile)
         profileButtonP2 = findViewById(R.id.textViewProfile)
+        aiButton1 = findViewById(R.id.imageViewAI)
+        aiButton2 = findViewById(R.id.textViewAI)
         searchButton = findViewById(R.id.search_button)
         searchBar = findViewById(R.id.search_bar)
         addOwnFood = findViewById(R.id.addOwnFood)
@@ -104,12 +110,23 @@ class FindFoodView : AppCompatActivity() {
 
         }
 
+
+        // bottom bar
         homeButton1.setOnClickListener {
             val intent = Intent(this, homeActivity::class.java)
             startActivity(intent)
         }
         homeButton2.setOnClickListener {
             val intent = Intent(this, homeActivity::class.java)
+            startActivity(intent)
+        }
+
+        aiButton1.setOnClickListener {
+            val intent = Intent(this, chatGPTAPI::class.java)
+            startActivity(intent)
+        }
+        aiButton2.setOnClickListener {
+            val intent = Intent(this, chatGPTAPI::class.java)
             startActivity(intent)
         }
 
@@ -121,6 +138,8 @@ class FindFoodView : AppCompatActivity() {
             val intent = Intent(this, profile::class.java)
             startActivity(intent)
         }
+
+
 
         addOwnFood.setOnClickListener {
             val intent = Intent(this, uploadFood::class.java)
@@ -227,7 +246,10 @@ class FindFoodView : AppCompatActivity() {
 
 
     private fun  searchByProductID(time: String, date: String, value: String){
+        val loadingProgressBar: ProgressBar = findViewById(R.id.loadingProgressBar)
+        loadingProgressBar.visibility = View.VISIBLE // Show loading indicator
         if (productID.isNotEmpty()) {
+
             val client = OkHttpClient()
             val request = Request.Builder()
                 .url("https://world.openfoodfacts.net/api/v2/product/$productID&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url")
@@ -239,6 +261,7 @@ class FindFoodView : AppCompatActivity() {
                 }
 
                 override fun onResponse(call: okhttp3.Call, response: okhttp3.Response) {
+
                     response.use {
                         if (!response.isSuccessful) throw IOException("Unexpected code $response")
 
@@ -291,13 +314,18 @@ class FindFoodView : AppCompatActivity() {
                             putExtra("value", value)
                         }
                         context.startActivity(intent)
+
                     }
+
+                    loadingProgressBar.visibility = View.INVISIBLE // Hide loading indicator
                 }
             })
         }
 
     }
     private fun searchFood(query: String, adapter: FoodAdapter, dataList: ArrayList<Food>) {
+        val loadingProgressBar: ProgressBar = findViewById(R.id.loadingProgressBar)
+        loadingProgressBar.visibility = View.VISIBLE // Show loading indicator
         val client = OkHttpClient()
         val request = Request.Builder()
             .url("https://world.openfoodfacts.org/api/v2/search?categories_tags=$query&fields=product_name,carbohydrates_100g,energy-kcal_100g,fat_100g,proteins_100g,image_url,code,brands")
@@ -341,13 +369,17 @@ class FindFoodView : AppCompatActivity() {
                         )
                         dataList.add(foodItem)
                     }
-
+                    loadingProgressBar.visibility = View.INVISIBLE // Hide loading indicator
                     runOnUiThread {
                         adapter.notifyDataSetChanged()
                     }
+
+
                 }
             }
         })
+
+
     }
 
     fun getCurrentDate(): String {

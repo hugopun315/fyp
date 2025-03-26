@@ -2,8 +2,10 @@ package com.example.fyp
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -24,7 +26,7 @@ class loginActivity : AppCompatActivity() {
         super.onStart()
         // Check if user is signed in (non-null) and update UI accordingly.
 
-
+/*
 
         val currentUser = auth.currentUser
         if (currentUser != null) {
@@ -34,7 +36,7 @@ class loginActivity : AppCompatActivity() {
         }
 
 
-
+*/
 
 
 
@@ -58,6 +60,8 @@ class loginActivity : AppCompatActivity() {
 
         loginButton = findViewById(R.id.btnLogin)
         loginButton.setOnClickListener {
+            val loadingProgressBar: ProgressBar = findViewById(R.id.loadingProgressBar)
+            loadingProgressBar.visibility = View.VISIBLE // Show loading indicator
             var email = emailEditText.text.toString()
             var password = passwordEditText.text.toString()
 
@@ -79,7 +83,7 @@ class loginActivity : AppCompatActivity() {
                             "Authentication failed.",
                             Toast.LENGTH_SHORT,
                         ).show()
-
+                        loadingProgressBar.visibility = View.GONE // Hide loading indicator
                     }
                 }
 

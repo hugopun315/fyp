@@ -29,8 +29,10 @@ class DailyRecordActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var homeButton1: ImageView
     private lateinit var homeButton2: TextView
-    private lateinit var searchButtonS1: ImageView
-    private lateinit var searchButtonS2: TextView
+    private lateinit var aiButton1: ImageView
+    private lateinit var aiButton2: TextView
+    private lateinit var profileButtonP1: ImageView
+    private lateinit var profileButtonP2: TextView
     private lateinit var CCTView: TextView
     private lateinit var databaseReference: DatabaseReference
 
@@ -43,10 +45,12 @@ class DailyRecordActivity : AppCompatActivity() {
         lunchRecyclerView = findViewById(R.id.lList)
         dinnerRecyclerView = findViewById(R.id.dList)
         datePicker = findViewById(R.id.datePicker)
-        searchButtonS1 = findViewById(R.id.imageViewSearch)
-        searchButtonS2 = findViewById(R.id.textViewSearch)
         homeButton1 = findViewById(R.id.imageViewHome)
         homeButton2 = findViewById(R.id.textViewHome)
+        profileButtonP1 = findViewById(R.id.imageViewProfile)
+        profileButtonP2 = findViewById(R.id.textViewProfile)
+        aiButton1 = findViewById(R.id.imageViewAI)
+        aiButton2 = findViewById(R.id.textViewAI)
         CCTView = findViewById(R.id.CCT)
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
@@ -77,21 +81,31 @@ class DailyRecordActivity : AppCompatActivity() {
             getData(userID, getCurrentDate())
         }
 
-        searchButtonS1.setOnClickListener {
-            val intent = Intent(this, firebaseDBSearch::class.java)
-            startActivity(intent)
-        }
-        searchButtonS2.setOnClickListener {
-            val intent = Intent(this, firebaseDBSearch::class.java)
+
+                homeButton1.setOnClickListener {
+                    val intent = Intent(this, homeActivity::class.java)
+                    startActivity(intent)
+                }
+        homeButton2.setOnClickListener {
+            val intent = Intent(this, homeActivity::class.java)
             startActivity(intent)
         }
 
-        homeButton1.setOnClickListener {
-            val intent = Intent(this, homeActivity::class.java)
+        aiButton1.setOnClickListener {
+            val intent = Intent(this, chatGPTAPI::class.java)
             startActivity(intent)
         }
-        homeButton2.setOnClickListener {
-            val intent = Intent(this, homeActivity::class.java)
+        aiButton2.setOnClickListener {
+            val intent = Intent(this, chatGPTAPI::class.java)
+            startActivity(intent)
+        }
+
+        profileButtonP1.setOnClickListener {
+            val intent = Intent(this, profile::class.java)
+            startActivity(intent)
+        }
+        profileButtonP2.setOnClickListener {
+            val intent = Intent(this, profile::class.java)
             startActivity(intent)
         }
     }

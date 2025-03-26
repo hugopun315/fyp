@@ -19,9 +19,10 @@ import com.google.firebase.database.ValueEventListener
 class profile : AppCompatActivity() {
     private lateinit var homeButton1: ImageView
     private lateinit var homeButton2: TextView
-    private lateinit var searchButtonS1: ImageView
-    private lateinit var profilePic: ImageView
-    private lateinit var searchButtonS2: TextView
+    private lateinit var aiButton1: ImageView
+    private lateinit var aiButton2: TextView
+    private lateinit var profileButtonP1: ImageView
+    private lateinit var profileButtonP2: TextView
     private lateinit var userData: TextView
     private lateinit var height: TextView
     private lateinit var weight: TextView
@@ -70,7 +71,8 @@ class profile : AppCompatActivity() {
                         startActivity(intent)
                     }
                     2 -> {
-
+                        val intent = Intent(this, changeBodyData::class.java)
+                        startActivity(intent)
                     }
                 }
             }
@@ -79,11 +81,12 @@ class profile : AppCompatActivity() {
         }
 
         // Initialize views and set existing click listeners
-        searchButtonS1 = findViewById(R.id.imageViewSearch)
-        searchButtonS2 = findViewById(R.id.textViewSearch)
-        homeButton1 = findViewById(R.id.imageView41)
-        homeButton2 = findViewById(R.id.textView81)
-        profilePic = findViewById(R.id.imageView3)
+        homeButton1 = findViewById(R.id.imageViewHome)
+        homeButton2 = findViewById(R.id.textViewHome)
+        profileButtonP1 = findViewById(R.id.imageViewProfile)
+        profileButtonP2 = findViewById(R.id.textViewProfile)
+        aiButton1 = findViewById(R.id.imageViewAI)
+        aiButton2 = findViewById(R.id.textViewAI)
         userData = findViewById(R.id.textView8)
         height = findViewById(R.id.textView111)
         weight = findViewById(R.id.textView112)
@@ -96,15 +99,6 @@ class profile : AppCompatActivity() {
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("profile")
         fetchUserProfile(databaseReference, userData, height, weight, TDEE)
 
-        searchButtonS1.setOnClickListener {
-            val intent = Intent(this, firebaseDBSearch::class.java)
-            startActivity(intent)
-        }
-        searchButtonS2.setOnClickListener {
-            val intent = Intent(this, firebaseDBSearch::class.java)
-            startActivity(intent)
-        }
-
         homeButton1.setOnClickListener {
             val intent = Intent(this, homeActivity::class.java)
             startActivity(intent)
@@ -113,6 +107,17 @@ class profile : AppCompatActivity() {
             val intent = Intent(this, homeActivity::class.java)
             startActivity(intent)
         }
+
+        aiButton1.setOnClickListener {
+            val intent = Intent(this, chatGPTAPI::class.java)
+            startActivity(intent)
+        }
+        aiButton2.setOnClickListener {
+            val intent = Intent(this, chatGPTAPI::class.java)
+            startActivity(intent)
+        }
+
+
     }
 
     private fun fetchUserProfile(
