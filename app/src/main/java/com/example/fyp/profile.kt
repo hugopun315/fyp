@@ -1,5 +1,6 @@
 package com.example.fyp
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -29,12 +30,14 @@ class profile : AppCompatActivity() {
     private lateinit var TDEE: TextView
     private lateinit var databaseReference: DatabaseReference
     private lateinit var auth: FirebaseAuth
-
+    private lateinit var sex: String
+    private lateinit var profilePic : ImageView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_profile)
-
+        sex = ""
+        Log.d(TAG, sex +" before")
         val viewTeam: LinearLayout = findViewById(R.id.viewTeam)
         val titles = arrayOf("Monthly Report", "Daily Record", "Modify Body Data")
         val subtitles = arrayOf("", "", "")
@@ -92,13 +95,13 @@ class profile : AppCompatActivity() {
         weight = findViewById(R.id.textView112)
         TDEE = findViewById(R.id.textView11)
         auth = FirebaseAuth.getInstance()
+        profilePic = findViewById(R.id.imageView3)
         val currentUser = auth.currentUser
 
         val userID = currentUser?.uid
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("profile")
         fetchUserProfile(databaseReference, userData, height, weight, TDEE)
-
         homeButton1.setOnClickListener {
             val intent = Intent(this, homeActivity::class.java)
             startActivity(intent)
@@ -136,6 +139,11 @@ class profile : AppCompatActivity() {
                     height.text = "${it.height}cm"
                     weight.text = "${it.weight}kg"
                     tdee.text = "${it.tdee}cals"
+                    if(it.sex != "Male"){
+                        profilePic.setImageResource(R.drawable.girl)
+                    }else{
+                        profilePic.setImageResource(R.drawable.boy)
+                    }
                 }
             }
 
