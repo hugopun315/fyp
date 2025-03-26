@@ -16,11 +16,14 @@
             android:layout_height="wrap_content"
             android:calendarViewShown="true" />
 
-        <Button
+        <TextView
             android:id="@+id/viewRecordButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="View Record" />
+            android:textAlignment="center"
+            android:text="No record at that day!"
+            android:textColor="@color/red"
+            android:visibility="invisible"/>
 
         <TextView
             android:id="@+id/CCT"

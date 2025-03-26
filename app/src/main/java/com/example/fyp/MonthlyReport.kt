@@ -130,7 +130,7 @@ class MonthlyReport : AppCompatActivity() {
                     val chartProtein = protein * 4 / record * 100
                     val chartCarbohydrates = carbohydrates * 4 / record * 100
                     val chartFat = fat * 9 / record * 100
-                    intake.text = "Total calorie intake: $record\nProtein: $protein g\nFat: $fat g\nCarbohydrates: $carbohydrates g\nThis pie chart shows the proportions of the three nutrients, including the total intake of protein, carbohydrates, and fat and their proportions."
+                    intake.text = "Total calorie intake: ${record.roundToTwoDecimalPlaces()}\nProtein: ${protein.roundToTwoDecimalPlaces()} g\nFat: ${fat.roundToTwoDecimalPlaces()} g\nCarbohydrates: ${carbohydrates.roundToTwoDecimalPlaces()} g\nThis pie chart shows the proportions of the three nutrients, including the total intake of protein, carbohydrates, and fat and their proportions."
 
                     // Pie Chart setup
                     val pieEntries = listOf(

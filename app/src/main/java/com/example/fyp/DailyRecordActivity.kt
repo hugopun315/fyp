@@ -3,7 +3,7 @@ package com.example.fyp
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Button
+import android.view.View
 import android.widget.DatePicker
 import android.widget.ImageView
 import android.widget.TextView
@@ -17,27 +17,28 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 class DailyRecordActivity : AppCompatActivity() {
     private lateinit var datePicker: DatePicker
     private lateinit var breakfastRecyclerView: RecyclerView
     private lateinit var lunchRecyclerView: RecyclerView
     private lateinit var dinnerRecyclerView: RecyclerView
-    private lateinit var buttonRecord: Button
+    private lateinit var alertText: TextView
     private lateinit var auth: FirebaseAuth
     private lateinit var homeButton1: ImageView
     private lateinit var homeButton2: TextView
     private lateinit var searchButtonS1: ImageView
     private lateinit var searchButtonS2: TextView
     private lateinit var CCTView: TextView
-
     private lateinit var databaseReference: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_daily_record)
 
-
+        alertText = findViewById(R.id.viewRecordButton)
         breakfastRecyclerView = findViewById(R.id.bList)
         lunchRecyclerView = findViewById(R.id.lList)
         dinnerRecyclerView = findViewById(R.id.dList)
@@ -53,97 +54,27 @@ class DailyRecordActivity : AppCompatActivity() {
 
         databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID!!).child("profile")
 
-        buttonRecord = findViewById(R.id.viewRecordButton)
-
         breakfastRecyclerView.layoutManager = LinearLayoutManager(this)
         lunchRecyclerView.layoutManager = LinearLayoutManager(this)
         dinnerRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        val breakfastDataList = ArrayList<Food>()
-        val lunchDataList = ArrayList<Food>()
-        val dinnerDataList = ArrayList<Food>()
-
-
-        buttonRecord.setOnClickListener {
-            val day = datePicker.dayOfMonth
-            val month = datePicker.month + 1 // Month is 0-based
-            val year = datePicker.year
-            val selectedDate = String.format("%04d-%02d-%02d", year, month, day)
-            val breakfastAdapter = FoodAdapter(this, breakfastDataList, "breakfast", selectedDate, "remove")
-            val lunchAdapter = FoodAdapter(this, lunchDataList, "lunch", selectedDate,"remove")
-            val dinnerAdapter = FoodAdapter(this, dinnerDataList, "dinner", selectedDate,"remove")
-
-            breakfastRecyclerView.adapter = breakfastAdapter
-            lunchRecyclerView.adapter = lunchAdapter
-            dinnerRecyclerView.adapter = dinnerAdapter
-
+        // Initialize the DatePicker with the current date and set the listener
+        val calendar = Calendar.getInstance()
+        datePicker.init(
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ) { _, year, monthOfYear, dayOfMonth ->
+            // This lambda is called whenever the date is changed
+            val selectedDate = String.format("%04d-%02d-%02d", year, monthOfYear + 1, dayOfMonth)
             if (userID != null) {
-
-                databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(selectedDate).child("record")
-                fetchUserCCT(databaseReference ,selectedDate )
-                // Fetch breakfast food items
-                val breakfastDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(selectedDate).child("breakfast").child("Food")
-                val breakfastEventListener = object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        breakfastDataList.clear()
-                        for (itemSnapshot in snapshot.children) {
-                            val dataClass = itemSnapshot.getValue(Food::class.java)
-                            dataClass?.let {
-                                it.key = itemSnapshot.key
-                                breakfastDataList.add(it)
-                            }
-                        }
-                        breakfastAdapter.notifyDataSetChanged()
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        Log.e("FirebaseError", error.message) // Handle possible errors
-                    }
-                }
-                breakfastDatabaseReference.addValueEventListener(breakfastEventListener) // Add the listener to the reference
-
-                // Fetch lunch food items
-                val lunchDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(selectedDate).child("lunch").child("Food")
-                val lunchEventListener = object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        lunchDataList.clear()
-                        for (itemSnapshot in snapshot.children) {
-                            val dataClass = itemSnapshot.getValue(Food::class.java)
-                            dataClass?.let {
-                                it.key = itemSnapshot.key
-                                lunchDataList.add(it)
-                            }
-                        }
-                        lunchAdapter.notifyDataSetChanged()
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        Log.e("FirebaseError", error.message) // Handle possible errors
-                    }
-                }
-                lunchDatabaseReference.addValueEventListener(lunchEventListener) // Add the listener to the reference
-
-                // Fetch dinner food items
-                val dinnerDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(selectedDate).child("dinner").child("Food")
-                val dinnerEventListener = object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        dinnerDataList.clear()
-                        for (itemSnapshot in snapshot.children) {
-                            val dataClass = itemSnapshot.getValue(Food::class.java)
-                            dataClass?.let {
-                                it.key = itemSnapshot.key
-                                dinnerDataList.add(it)
-                            }
-                        }
-                        dinnerAdapter.notifyDataSetChanged()
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        Log.e("FirebaseError", error.message) // Handle possible errors
-                    }
-                }
-                dinnerDatabaseReference.addValueEventListener(dinnerEventListener) // Add the listener to the reference
+                getData(userID, selectedDate)
             }
+        }
+
+        // Load data for the current date initially
+        if (userID != null) {
+            getData(userID, getCurrentDate())
         }
 
         searchButtonS1.setOnClickListener {
@@ -163,21 +94,137 @@ class DailyRecordActivity : AppCompatActivity() {
             val intent = Intent(this, homeActivity::class.java)
             startActivity(intent)
         }
-
-
     }
 
-    private fun fetchUserCCT(databaseReference: DatabaseReference, selectedDate : String) {
+    fun getCurrentDate(): String {
+        val calendar = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return dateFormat.format(calendar.time)
+    }
+
+    private fun getData(userID: String, today: String) {
+        val day = datePicker.dayOfMonth
+        val month = datePicker.month + 1 // Month is 0-based
+        val year = datePicker.year
+
+        val breakfastDataList = ArrayList<Food>()
+        val lunchDataList = ArrayList<Food>()
+        val dinnerDataList = ArrayList<Food>()
+        val selectedDate: String
+        if (today != "") {
+            selectedDate = today
+        } else {
+            selectedDate = String.format("%04d-%02d-%02d", year, month, day)
+        }
+
+        val breakfastAdapter = FoodAdapter(this, breakfastDataList, "breakfast", selectedDate, "remove")
+        val lunchAdapter = FoodAdapter(this, lunchDataList, "lunch", selectedDate, "remove")
+        val dinnerAdapter = FoodAdapter(this, dinnerDataList, "dinner", selectedDate, "remove")
+
+        breakfastRecyclerView.adapter = breakfastAdapter
+        lunchRecyclerView.adapter = lunchAdapter
+        dinnerRecyclerView.adapter = dinnerAdapter
+
+        // Counter to track when all meal data has been fetched
+        var fetchCount = 0
+        val totalFetches = 3 // Breakfast, Lunch, Dinner
+
+        // Function to check if all data is fetched and update alertText visibility
+        fun checkAndUpdateAlertText() {
+            fetchCount++
+            if (fetchCount == totalFetches) {
+                // All data has been fetched, check if there's any data
+                val hasData = breakfastDataList.isNotEmpty() || lunchDataList.isNotEmpty() || dinnerDataList.isNotEmpty()
+                alertText.visibility = if (hasData) View.GONE else View.VISIBLE
+            }
+        }
+
+        if (userID != null) {
+            databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(selectedDate).child("record")
+            fetchUserCCT(databaseReference, selectedDate)
+
+            // Fetch breakfast food items
+            val breakfastDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(selectedDate).child("breakfast").child("Food")
+            val breakfastEventListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    breakfastDataList.clear()
+                    for (itemSnapshot in snapshot.children) {
+                        val dataClass = itemSnapshot.getValue(Food::class.java)
+                        dataClass?.let {
+                            it.key = itemSnapshot.key
+                            breakfastDataList.add(it)
+                        }
+                    }
+                    breakfastAdapter.notifyDataSetChanged()
+                    checkAndUpdateAlertText()
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("FirebaseError", error.message)
+                    checkAndUpdateAlertText() // Still increment the counter to avoid hanging
+                }
+            }
+            breakfastDatabaseReference.addValueEventListener(breakfastEventListener)
+
+            // Fetch lunch food items
+            val lunchDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(selectedDate).child("lunch").child("Food")
+            val lunchEventListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    lunchDataList.clear()
+                    for (itemSnapshot in snapshot.children) {
+                        val dataClass = itemSnapshot.getValue(Food::class.java)
+                        dataClass?.let {
+                            it.key = itemSnapshot.key
+                            lunchDataList.add(it)
+                        }
+                    }
+                    lunchAdapter.notifyDataSetChanged()
+                    checkAndUpdateAlertText()
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("FirebaseError", error.message)
+                    checkAndUpdateAlertText()
+                }
+            }
+            lunchDatabaseReference.addValueEventListener(lunchEventListener)
+
+            // Fetch dinner food items
+            val dinnerDatabaseReference = FirebaseDatabase.getInstance().getReference("Users").child(userID).child("meals").child(selectedDate).child("dinner").child("Food")
+            val dinnerEventListener = object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    dinnerDataList.clear()
+                    for (itemSnapshot in snapshot.children) {
+                        val dataClass = itemSnapshot.getValue(Food::class.java)
+                        dataClass?.let {
+                            it.key = itemSnapshot.key
+                            dinnerDataList.add(it)
+                        }
+                    }
+                    dinnerAdapter.notifyDataSetChanged()
+                    checkAndUpdateAlertText()
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("FirebaseError", error.message)
+                    checkAndUpdateAlertText()
+                }
+            }
+            dinnerDatabaseReference.addValueEventListener(dinnerEventListener)
+        }
+    }
+
+    private fun fetchUserCCT(databaseReference: DatabaseReference, selectedDate: String) {
         databaseReference.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 val record = dataSnapshot.getValue(String::class.java)
                 record?.let {
-                    CCTView.text = "Calories Consumed at $selectedDate : $it kals"
+                    CCTView.text = "Calories Consumed at $selectedDate: $it kals"
                 }
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                Log.e("FirebaseError", databaseError.message) // Handle possible errors
+                Log.e("FirebaseError", databaseError.message)
             }
         })
     }
